@@ -1,0 +1,8 @@
++ TESTFILE=Makefile
++ ./zcgzip
++ gunzip
++ cmp - Makefile
++ gzip
++ ./zcgunzip
++ cmp - Makefile
+PASS google/protobuf/io/gzip_stream_unittest.sh (exit status: 0)

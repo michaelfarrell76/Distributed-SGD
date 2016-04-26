@@ -1,0 +1,104 @@
+Running main() from gmock_main.cc
+[==========] Running 44 tests from 3 test cases.
+[----------] Global test environment set-up.
+[----------] 40 tests from GeneratedMessageTest
+[ RUN      ] GeneratedMessageTest.Defaults
+[       OK ] GeneratedMessageTest.Defaults (1 ms)
+[ RUN      ] GeneratedMessageTest.Int32StringConversion
+[       OK ] GeneratedMessageTest.Int32StringConversion (0 ms)
+[ RUN      ] GeneratedMessageTest.Int64StringConversion
+[       OK ] GeneratedMessageTest.Int64StringConversion (0 ms)
+[ RUN      ] GeneratedMessageTest.FloatingPointDefaults
+[       OK ] GeneratedMessageTest.FloatingPointDefaults (0 ms)
+[ RUN      ] GeneratedMessageTest.Trigraph
+[       OK ] GeneratedMessageTest.Trigraph (0 ms)
+[ RUN      ] GeneratedMessageTest.ExtremeSmallIntegerDefault
+[       OK ] GeneratedMessageTest.ExtremeSmallIntegerDefault (0 ms)
+[ RUN      ] GeneratedMessageTest.Accessors
+[       OK ] GeneratedMessageTest.Accessors (0 ms)
+[ RUN      ] GeneratedMessageTest.MutableStringDefault
+[       OK ] GeneratedMessageTest.MutableStringDefault (0 ms)
+[ RUN      ] GeneratedMessageTest.StringDefaults
+[       OK ] GeneratedMessageTest.StringDefaults (0 ms)
+[ RUN      ] GeneratedMessageTest.ReleaseString
+[       OK ] GeneratedMessageTest.ReleaseString (0 ms)
+[ RUN      ] GeneratedMessageTest.ReleaseMessage
+[       OK ] GeneratedMessageTest.ReleaseMessage (0 ms)
+[ RUN      ] GeneratedMessageTest.SetAllocatedString
+[       OK ] GeneratedMessageTest.SetAllocatedString (0 ms)
+[ RUN      ] GeneratedMessageTest.SetAllocatedMessage
+[       OK ] GeneratedMessageTest.SetAllocatedMessage (0 ms)
+[ RUN      ] GeneratedMessageTest.Clear
+[       OK ] GeneratedMessageTest.Clear (0 ms)
+[ RUN      ] GeneratedMessageTest.EmbeddedNullsInBytesCharStar
+[       OK ] GeneratedMessageTest.EmbeddedNullsInBytesCharStar (0 ms)
+[ RUN      ] GeneratedMessageTest.ClearOneField
+[       OK ] GeneratedMessageTest.ClearOneField (0 ms)
+[ RUN      ] GeneratedMessageTest.StringCharStarLength
+[       OK ] GeneratedMessageTest.StringCharStarLength (0 ms)
+[ RUN      ] GeneratedMessageTest.CopyFrom
+[       OK ] GeneratedMessageTest.CopyFrom (0 ms)
+[ RUN      ] GeneratedMessageTest.SwapWithEmpty
+[       OK ] GeneratedMessageTest.SwapWithEmpty (0 ms)
+[ RUN      ] GeneratedMessageTest.SwapWithSelf
+[       OK ] GeneratedMessageTest.SwapWithSelf (0 ms)
+[ RUN      ] GeneratedMessageTest.SwapWithOther
+[       OK ] GeneratedMessageTest.SwapWithOther (0 ms)
+[ RUN      ] GeneratedMessageTest.CopyConstructor
+[       OK ] GeneratedMessageTest.CopyConstructor (0 ms)
+[ RUN      ] GeneratedMessageTest.CopyAssignmentOperator
+[       OK ] GeneratedMessageTest.CopyAssignmentOperator (0 ms)
+[ RUN      ] GeneratedMessageTest.UpcastCopyFrom
+[       OK ] GeneratedMessageTest.UpcastCopyFrom (0 ms)
+[ RUN      ] GeneratedMessageTest.NonEmptyMergeFrom
+[       OK ] GeneratedMessageTest.NonEmptyMergeFrom (0 ms)
+[ RUN      ] GeneratedMessageTest.SerializationToArray
+[       OK ] GeneratedMessageTest.SerializationToArray (0 ms)
+[ RUN      ] GeneratedMessageTest.PackedFieldsSerializationToArray
+[       OK ] GeneratedMessageTest.PackedFieldsSerializationToArray (1 ms)
+[ RUN      ] GeneratedMessageTest.SerializationToStream
+[       OK ] GeneratedMessageTest.SerializationToStream (0 ms)
+[ RUN      ] GeneratedMessageTest.PackedFieldsSerializationToStream
+[       OK ] GeneratedMessageTest.PackedFieldsSerializationToStream (0 ms)
+[ RUN      ] GeneratedMessageTest.Required
+[       OK ] GeneratedMessageTest.Required (0 ms)
+[ RUN      ] GeneratedMessageTest.RequiredForeign
+[       OK ] GeneratedMessageTest.RequiredForeign (0 ms)
+[ RUN      ] GeneratedMessageTest.ForeignNested
+[       OK ] GeneratedMessageTest.ForeignNested (0 ms)
+[ RUN      ] GeneratedMessageTest.ReallyLargeTagNumber
+[       OK ] GeneratedMessageTest.ReallyLargeTagNumber (0 ms)
+[ RUN      ] GeneratedMessageTest.MutualRecursion
+[       OK ] GeneratedMessageTest.MutualRecursion (0 ms)
+[ RUN      ] GeneratedMessageTest.CamelCaseFieldNames
+[       OK ] GeneratedMessageTest.CamelCaseFieldNames (0 ms)
+[ RUN      ] GeneratedMessageTest.TestConflictingSymbolNames
+[       OK ] GeneratedMessageTest.TestConflictingSymbolNames (0 ms)
+[ RUN      ] GeneratedMessageTest.TestConflictingEnumNames
+[       OK ] GeneratedMessageTest.TestConflictingEnumNames (0 ms)
+[ RUN      ] GeneratedMessageTest.FieldConstantValues
+[       OK ] GeneratedMessageTest.FieldConstantValues (0 ms)
+[ RUN      ] GeneratedMessageTest.ExtensionConstantValues
+[       OK ] GeneratedMessageTest.ExtensionConstantValues (0 ms)
+[ RUN      ] GeneratedMessageTest.ParseFromTruncated
+[       OK ] GeneratedMessageTest.ParseFromTruncated (0 ms)
+[----------] 40 tests from GeneratedMessageTest (3 ms total)
+
+[----------] 3 tests from GeneratedEnumTest
+[ RUN      ] GeneratedEnumTest.EnumValuesAsSwitchCases
+[       OK ] GeneratedEnumTest.EnumValuesAsSwitchCases (0 ms)
+[ RUN      ] GeneratedEnumTest.IsValidValue
+[       OK ] GeneratedEnumTest.IsValidValue (0 ms)
+[ RUN      ] GeneratedEnumTest.MinAndMax
+[       OK ] GeneratedEnumTest.MinAndMax (0 ms)
+[----------] 3 tests from GeneratedEnumTest (0 ms total)
+
+[----------] 1 test from DescriptorInitializationTest
+[ RUN      ] DescriptorInitializationTest.Initialized
+[       OK ] DescriptorInitializationTest.Initialized (0 ms)
+[----------] 1 test from DescriptorInitializationTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 44 tests from 3 test cases ran. (3 ms total)
+[  PASSED  ] 44 tests.
+PASS protobuf-lazy-descriptor-test (exit status: 0)

@@ -9,5 +9,6 @@ For Wednesdays Presentation:
 	- Basic LR or MLP
 	- Find good dataset to use with lots of parameters
 	- Fool around with minibatch size to make this worth it
+	- add in automatic failure mechanism and compare the two
 	
 

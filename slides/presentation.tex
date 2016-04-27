@@ -1,0 +1,125 @@
+\documentclass{beamer}
+\usepackage{./common_slides}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{graphicx}
+
+
+\title{ Distributed Stochastic Gradient Descent }
+
+\author{Kevin Yang and Michael Farrell}
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}{Motivation - Deep Learning}
+
+\begin{columns}[T] % align columns
+\begin{column}{.48\textwidth}
+\begin{itemize}
+\item Deep-Learning
+\begin{itemize}
+\item Objective: Learn a complicated, non-linear function that minimzes some loss function
+\end{itemize}
+\item Why do we need deep models?
+\begin{itemize}
+\item The class of linear functions is inadequate for many problems.
+\end{itemize}
+\end{itemize}
+\end{column}%
+\hfill%
+\begin{column}{.48\textwidth}
+\begin{figure}
+    \includegraphics[scale = .35]{./img/deep_learning}
+      \caption{\scalebox{.3}{http://www.rsipvision.com/exploring-deep-learning/}}
+\end{figure}
+\begin{figure}
+    \includegraphics[scale = .17]{./img/lin_v_nonlin}
+      \caption{\scalebox{.3}{http://sebastianraschka.com/Articles/2014{\_}naive{\_}bayes{\_}1.html}}
+     
+\end{figure}
+
+\end{column}%
+\end{columns}
+
+
+
+\end{frame}
+
+\begin{frame}{Motivation - Deep Learning}
+\begin{itemize}
+\item How do we learn these deep models?
+\begin{itemize}
+\item Choose a random example
+\item Run the neural network on the example
+\item Adjust the parameters of the network such that our loss function is minimized more than it was before
+\item Repeat
+\end{itemize}
+\pause
+\item Difficulties?
+\begin{itemize}
+\item Local Minima
+\item Non-convexity
+\item Neural Networks can have millions or even billions of parameters
+\end{itemize}
+\end{itemize}
+\begin{textblock*}{5cm}(8cm,.5cm) % {block width} (coords)
+\includegraphics[scale = .3]{./img/2d_func}
+\end{textblock*}
+\end{frame}
+
+\begin{frame}{Motivation - SGD}
+\begin{itemize}
+\item How do we maximize our reward function?
+\begin{itemize}
+\item One common technique is Stochastic Gradient Descent
+\item $\mathbf w$ is the vector of parameters for the model
+\item $\eta$ is the learning rate 
+\item $\mathbf f(\mathbf w)$ is the loss function evaluated with the current parameters $\mathbf w$
+\item 
+\begin{algorithmic}
+\State $\mathbf w \gets \mathbf 0$
+\While {$\mathbf f(\mathbf w)$ is not minimized}
+	\For {$i = 1, n$}
+    \State $\mathbf w \gets \mathbf w - \eta\nabla f(\mathbf w)$
+
+	\EndFor
+\EndWhile
+
+\end{algorithmic}
+\item As the number of training examples, $n$, and the number of parameters, $|\mathbf w|$, increases, this algorithm quickly becomes very slow...
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Motivation - Distributed SGD}
+\begin{itemize}
+\item Since some of these models take days/weeks/months to run, we would hope that we could use a distributed computing cluster parallelize this process.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{DistBelief}
+\end{frame}
+
+\begin{frame}{TensorFlow}
+
+\end{frame}
+
+
+\begin{frame}{gRPC}
+
+\end{frame}
+
+\begin{frame}{Our Model}
+
+\end{frame}
+
+
+
+\begin{frame}{Extensions}
+  
+\end{frame}
+
+\end{document}

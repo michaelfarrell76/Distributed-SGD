@@ -34,6 +34,26 @@ Set up grpc
 	git clone https://github.com/grpc/grpc.git
 	sudo make grpc_python_plugin
 	sudo vim /etc/paths, add the line /Users/candokevin/stash/grpc/bins/opt
-	
+
 
 It might be a good idea to look into Docker containers, and Docker networks for launching and setting up VMs. 
+
+This site suggests that Google Compute might actually be the best platform for this
+https://gigaom.com/2014/04/12/need-for-speed-testing-the-networking-performance-of-the-top-4-cloud-providers/
+https://cloudplatform.googleblog.com/2014/04/enter-andromeda-zone-google-cloud-platforms-latest-networking-stack.html
+Get started, generate a project ID
+Network speed is critical considering how huge our gradients may be. 
+
+Persistent 10GB disk for saving the state of machine 
+Allows you to save the state of a machine
+
+gcloud compute instances create example-instance --image test-image --zone us-central1-b
+gcloud compute ssh large-example-instance --zone 
+gcloud compute copy-files /Users/candokevin/stash/distributed-sgd/scp extra-large-example-instance:~/scp/ --zone us-central1-b
+
+
+Generate some code that performs the following
+
+Initializes the parameters to some certain set of values
+Updates parameters given some gradient
+Sends parameters to different servers 

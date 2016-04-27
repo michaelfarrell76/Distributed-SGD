@@ -10,8 +10,16 @@ import autograd.numpy.random as npr
 from autograd.scipy.misc import logsumexp
 from autograd import grad
 from autograd.util import quick_grad_check
+import gc
+import resource
+from sys import getsizeof
+import os
+import psutil
 
 # {0: 'accordion', 1: 'airplanes', 2: 'anchor', 3: 'ant', 4: 'BACKGROUND_Google', 5: 'barrel', 6: 'bass', 7: 'beaver', 8: 'binocular', 9: 'bonsai', 10: 'brain', 11: 'brontosaurus', 12: 'buddha', 13: 'butterfly', 14: 'camera', 15: 'cannon', 16: 'car_side', 17: 'ceiling_fan', 18: 'cellphone', 19: 'chair', 20: 'chandelier', 21: 'cougar_body', 22: 'cougar_face', 23: 'crab', 24: 'crayfish', 25: 'crocodile', 26: 'crocodile_head', 27: 'cup', 28: 'dalmatian', 29: 'dollar_bill', 30: 'dolphin', 31: 'dragonfly', 32: 'electric_guitar', 33: 'elephant', 34: 'emu', 35: 'euphonium', 36: 'ewer', 37: 'Faces', 38: 'Faces_easy', 39: 'ferry', 40: 'flamingo', 41: 'flamingo_head', 42: 'garfield', 43: 'gerenuk', 44: 'gramophone', 45: 'grand_piano', 46: 'hawksbill', 47: 'headphone', 48: 'hedgehog', 49: 'helicopter', 50: 'ibis', 51: 'inline_skate', 52: 'joshua_tree', 53: 'kangaroo', 54: 'ketch', 55: 'lamp', 56: 'laptop', 57: 'Leopards', 58: 'llama', 59: 'lobster', 60: 'lotus', 61: 'mandolin', 62: 'mayfly', 63: 'menorah', 64: 'metronome', 65: 'minaret', 66: 'Motorbikes', 67: 'nautilus', 68: 'octopus', 69: 'okapi', 70: 'pagoda', 71: 'panda', 72: 'pigeon', 73: 'pizza', 74: 'platypus', 75: 'pyramid', 76: 'revolver', 77: 'rhino', 78: 'rooster', 79: 'saxophone', 80: 'schooner', 81: 'scissors', 82: 'scorpion', 83: 'sea_horse', 84: 'snoopy', 85: 'soccer_ball', 86: 'stapler', 87: 'starfish', 88: 'stegosaurus', 89: 'stop_sign', 90: 'strawberry', 91: 'sunflower', 92: 'tick', 93: 'trilobite', 94: 'umbrella', 95: 'watch', 96: 'water_lilly', 97: 'wheelchair', 98: 'wild_cat', 99: 'windsor_chair', 100: 'wrench', 101: 'yin_yang'}
+
+images_fname = 'images(128).npy'
+output_labels_fname = 'output_labels(128).npy'
 
 def make_nn_funs(layer_sizes, L2_reg):
     shapes = zip(layer_sizes[:-1], layer_sizes[1:])
@@ -88,8 +96,8 @@ def make_batches(N_data, batch_size):
 def load_caltech100(): 
 	# gen_data()
 	one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-	images = np.load('images.npy')
-	output_labels = np.load('output_labels.npy')
+	images = np.load(images_fname)
+	output_labels = np.load(output_labels_fname)
 	train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
 	train_labels = one_hot(train_labels, 101)
 	valid_labels = one_hot(valid_labels, 101)
@@ -97,7 +105,11 @@ def load_caltech100():
 	return train_images, train_labels, valid_images, valid_labels
 
 if __name__ == '__main__':
-    
+
+   	print(resource.getrusage(resource.RUSAGE_SELF))
+	process = psutil.Process(os.getpid())
+	print (process.memory_info().rss)
+
 	# Load and process Caltech data
 	train_images, train_labels, test_images, test_labels = load_caltech100()
 	image_input_d = train_images.shape[1]
@@ -120,7 +132,7 @@ if __name__ == '__main__':
 	# Initialize weights
 	rs = npr.RandomState()
 	W = rs.randn(N_weights) * param_scale
-
+	
 	# Check the gradients numerically, just to be safe
 	# quick_grad_check(loss_fun, W, (train_images, train_labels))
 
@@ -133,12 +145,18 @@ if __name__ == '__main__':
 
 	# Train with sgd
 	batch_idxs = make_batches(train_images.shape[0], batch_size)
+	import bpdb; bpdb.set_trace()
 	cur_dir = np.zeros(N_weights)
 
 	for epoch in range(num_epochs):
 	    print_perf(epoch, W)
 	    for idxs in batch_idxs:
 	        grad_W = loss_grad(W, train_images[idxs], train_labels[idxs])
-	        print(grad_W.shape)
+	        print('----------------------------')
+	        print(getsizeof(grad_W))
+	       	#print(process.memory_info().rss)
+	        #print(resource.getrusage(resource.RUSAGE_SELF))
+	        gc.collect()
+	        #print(process.memory_info().rss)
 	        cur_dir = momentum * cur_dir + (1.0 - momentum) * grad_W
 	        W -= learning_rate * cur_dir

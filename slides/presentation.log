@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  26 APR 2016 23:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  27 APR 2016 00:29
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1435,49 +1435,49 @@ Non-PDF special ignored!
 Non-PDF special ignored!
 Non-PDF special ignored!{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/upd
 map/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OML+zplm on input line 48.
+LaTeX Font Info:    Try loading font information for OML+zplm on input line 43.
 
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/omlzplm.fd
 File: omlzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OML/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMS+zplm on input line 48.
+LaTeX Font Info:    Try loading font information for OMS+zplm on input line 43.
 
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/omszplm.fd
 File: omszplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMS/zplm.
 )
-LaTeX Font Info:    Try loading font information for OMX+zplm on input line 48.
+LaTeX Font Info:    Try loading font information for OMX+zplm on input line 43.
 
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/omxzplm.fd
 File: omxzplm.fd 2002/09/08 Fontinst v1.914 font definitions for OMX/zplm.
 )
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 48.
+(Font)              scaled to size 8.33606pt on input line 43.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 48.
+(Font)              scaled to size 6.25204pt on input line 43.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 48.
+(Font)              scaled to size 5.21004pt on input line 43.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 8.33606pt on input line 48.
+(Font)              scaled to size 8.33606pt on input line 43.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 6.25204pt on input line 48.
+(Font)              scaled to size 6.25204pt on input line 43.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 5.21004pt on input line 48.
-LaTeX Font Info:    Try loading font information for OT1+zplm on input line 48.
+(Font)              scaled to size 5.21004pt on input line 43.
+LaTeX Font Info:    Try loading font information for OT1+zplm on input line 43.
 
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
-LaTeX Font Info:    Try loading font information for U+lasy on input line 48.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 43.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
 LaTeX Font Info:    Try loading font information for OT1+mathkerncmss on input 
-line 48.
+line 43.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/sansmathaccent/ot1mathkerncmss.fd
 File: ot1mathkerncmss.fd 2013/03/27 Fontinst v1.933 font definitions for OT1/ma
@@ -1486,17 +1486,17 @@ thkerncmss.
 File: ./img/deep_learning.png Graphic file (type png)
 
 <use ./img/deep_learning.png>
-Package pdftex.def Info: ./img/deep_learning.png used on input line 48.
+Package pdftex.def Info: ./img/deep_learning.png used on input line 43.
 (pdftex.def)             Requested size: 142.81067pt x 85.6337pt.
 
 <./img/lin_v_nonlin.png, id=22, 711.65875pt x 298.11375pt>
 File: ./img/lin_v_nonlin.png Graphic file (type png)
 
 <use ./img/lin_v_nonlin.png>
-Package pdftex.def Info: ./img/lin_v_nonlin.png used on input line 48.
+Package pdftex.def Info: ./img/lin_v_nonlin.png used on input line 43.
 (pdftex.def)             Requested size: 120.98038pt x 50.67867pt.
 
-Overfull \vbox (3.0226pt too high) detected at line 48
+Overfull \vbox (3.0226pt too high) detected at line 43
  []
 
 [2
@@ -1505,7 +1505,7 @@ Overfull \vbox (3.0226pt too high) detected at line 48
 <./img/2d_func.jpg, id=32, 386.44376pt x 307.1475pt>
 File: ./img/2d_func.jpg Graphic file (type jpg)
  <use ./img/2d_func.jpg>
-Package pdftex.def Info: ./img/2d_func.jpg used on input line 70.
+Package pdftex.def Info: ./img/2d_func.jpg used on input line 65.
 (pdftex.def)             Requested size: 115.93402pt x 92.14496pt.
 
 [3
@@ -1513,33 +1513,90 @@ Package pdftex.def Info: ./img/2d_func.jpg used on input line 70.
  <./img/2d_func.jpg>]
 File: ./img/2d_func.jpg Graphic file (type jpg)
  <use ./img/2d_func.jpg>
-Package pdftex.def Info: ./img/2d_func.jpg used on input line 70.
+Package pdftex.def Info: ./img/2d_func.jpg used on input line 65.
 (pdftex.def)             Requested size: 115.93402pt x 92.14496pt.
  [4
 
 ]
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 94.
+(Font)              scaled to size 10.42007pt on input line 88.
 LaTeX Font Info:    Font shape `U/msa/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 94.
+(Font)              scaled to size 7.91925pt on input line 88.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 10.42007pt on input line 94.
+(Font)              scaled to size 10.42007pt on input line 88.
 LaTeX Font Info:    Font shape `U/msb/m/n' will be
-(Font)              scaled to size 7.91925pt on input line 94.
+(Font)              scaled to size 7.91925pt on input line 88.
  [5
 
 ] [6
 
 ] [7
 
-] [8
-
-] [9
-
 ]
+LaTeX Font Info:    Font shape `U/msa/m/n' will be
+(Font)              scaled to size 11.40997pt on input line 115.
+LaTeX Font Info:    Font shape `U/msb/m/n' will be
+(Font)              scaled to size 11.40997pt on input line 115.
+
+<./img/downpour.png, id=65, 449.68pt x 334.24875pt>
+File: ./img/downpour.png Graphic file (type png)
+ <use ./img/downpour.png>
+Package pdftex.def Info: ./img/downpour.png used on input line 115.
+(pdftex.def)             Requested size: 224.83945pt x 167.12396pt.
+
+[8
+
+ <./img/downpour.png>]
+<./img/sandblaster.png, id=72, 443.6575pt x 314.17375pt>
+File: ./img/sandblaster.png Graphic file (type png)
+
+<use ./img/sandblaster.png>
+Package pdftex.def Info: ./img/sandblaster.png used on input line 122.
+(pdftex.def)             Requested size: 221.8282pt x 157.08649pt.
+ [9
+
+ <./img/sandblaster.png>]
+<./img/gRPC.png, id=79, 874.26625pt x 494.84875pt>
+File: ./img/gRPC.png Graphic file (type png)
+ <use ./img/gRPC.png>
+Package pdftex.def Info: ./img/gRPC.png used on input line 135.
+(pdftex.def)             Requested size: 174.85014pt x 98.96799pt.
+
 [10
 
-] [11
+ <./img/gRPC.png>] <./img/dist_train.png, id=86, 957.5775pt x 513.92pt>
+File: ./img/dist_train.png Graphic file (type png)
+
+<use ./img/dist_train.png>
+Package pdftex.def Info: ./img/dist_train.png used on input line 144.
+(pdftex.def)             Requested size: 172.3565pt x 92.5016pt.
+
+<./img/dist_16.png, id=87, 961.5925pt x 468.75125pt>
+File: ./img/dist_16.png Graphic file (type png)
+ <use ./img/dist_16.png>
+Package pdftex.def Info: ./img/dist_16.png used on input line 144.
+(pdftex.def)             Requested size: 173.07918pt x 84.37158pt.
+
+Overfull \hbox (15.3836pt too wide) detected at line 144
+[][]
+ []
+
+[11
+
+ <./img/dist_train.png> <./img/dist_16.png>] [12
+
+] [13
+
+]
+<./img/large_data.png, id=106, 878.28125pt x 231.86626pt>
+File: ./img/large_data.png Graphic file (type png)
+
+<use ./img/large_data.png>
+Package pdftex.def Info: ./img/large_data.png used on input line 168.
+(pdftex.def)             Requested size: 237.1391pt x 62.60472pt.
+ [14
+
+ <./img/large_data.png>] [15
 
 ]
 \tf@nav=\write7
@@ -1551,11 +1608,11 @@ LaTeX Font Info:    Font shape `U/msb/m/n' will be
 \tf@snm=\write9
 \openout9 = `presentation.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 125.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 125.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 178.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 178.
  (./presentation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 125.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 125.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 178.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 178.
 Package rerunfilecheck Info: File `presentation.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
@@ -1563,28 +1620,29 @@ Package rerunfilecheck Info: File `presentation.out' has not changed.
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 1.0pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 125.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 178.
  ) 
 Here is how much of TeX's memory you used:
- 26874 strings out of 493089
- 513210 string characters out of 6134842
- 639851 words of memory out of 5000000
- 29673 multiletter control sequences out of 15000+600000
- 22899 words of font info for 80 fonts, out of 8000000 for 9000
+ 26960 strings out of 493089
+ 515203 string characters out of 6134842
+ 639849 words of memory out of 5000000
+ 29744 multiletter control sequences out of 15000+600000
+ 25876 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  58i,11n,74p,955b,766s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb><
 /usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></
-usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb><
-/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb><
-/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
-usr/local/texlive/2015/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
-Output written on presentation.pdf (11 pages, 211035 bytes).
+usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></us
+r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></u
+sr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></u
+sr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
+r/local/texlive/2015/texmf-dist/fonts/type1/public/mathpazo/fplmri.pfb></usr/lo
+cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb>
+Output written on presentation.pdf (15 pages, 1456003 bytes).
 PDF statistics:
- 117 PDF objects out of 1000 (max. 8388607)
- 84 compressed objects within 1 object stream
- 23 named destinations out of 1000 (max. 500000)
- 58 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 157 PDF objects out of 1000 (max. 8388607)
+ 106 compressed objects within 2 object streams
+ 31 named destinations out of 1000 (max. 500000)
+ 88 words of extra memory for PDF output out of 10000 (max. 10000000)
 

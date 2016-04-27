@@ -37,14 +37,9 @@
 \begin{figure}
     \includegraphics[scale = .17]{./img/lin_v_nonlin}
       \caption{\scalebox{.3}{http://sebastianraschka.com/Articles/2014{\_}naive{\_}bayes{\_}1.html}}
-     
 \end{figure}
-
 \end{column}%
 \end{columns}
-
-
-
 \end{frame}
 
 \begin{frame}{Motivation - Deep Learning}
@@ -83,7 +78,6 @@
 \While {$\mathbf f(\mathbf w)$ is not minimized}
 	\For {$i = 1, n$}
     \State $\mathbf w \gets \mathbf w - \eta\nabla f(\mathbf w)$
-
 	\EndFor
 \EndWhile
 
@@ -96,30 +90,103 @@
 \begin{frame}{Motivation - Distributed SGD}
 \begin{itemize}
 \item Since some of these models take days/weeks/months to run, we would hope that we could use a distributed computing cluster parallelize this process.
+\pause
+\item Learn from Google!
+\begin{itemize}
+\item DistBelief- 2012
+\begin{itemize}
+\item Downpour SGD
+\item Sandblaster L-BFGS
+\end{itemize}
+\item TensorFlow -2015
+\begin{itemize}
+\item gRPC
+\end{itemize}
+\end{itemize}
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{DistBelief}
+\begin{frame}{DistBelief - Downpour SGD}
+\begin{itemize}
+\item ``An asynchronous stochastic gradient descent procedure supporting a large number of model replicas."
+\end{itemize}
+$$\includegraphics[scale = .5]{./img/downpour}$$
 \end{frame}
 
-\begin{frame}{TensorFlow}
+\begin{frame}{DistBelief - Sandblaster L-BFGS}
+\begin{itemize}
+\item ``A framework that supports a variety of distributed batch optimization procedures, including a distributed implementation of L-BFGS"
+\end{itemize}
+$$\includegraphics[scale = .5]{./img/sandblaster}$$
+\end{frame}
+
+\begin{frame}{TensorFlow-GRPC}
+\begin{itemize}
+\item Second Generation ML Model focused on distributing models to CPUs and GPUs
+\item Uses the high performance RPC framework (GRPC) to communicated between separate processes
+\begin{itemize}
+\item Uses Protocol Buffers -v3
+\item C-based
+\item Client-server stubs in 10+ languages and counting
+\end{itemize}
+\end{itemize}
+$$\includegraphics[scale = .2]{./img/gRPC}$$
+\end{frame}
+
+\begin{frame}{DistBelief/TensorFlow Summary}
+\begin{itemize}
+\item TensorFlow is basically the second version of DistBelief that is approximately twice as fast and much more user-friendly.
+\item Results from DistBelief:
+\end{itemize}
+$$\includegraphics[scale = .18]{./img/dist_train}\includegraphics[scale = .18]{./img/dist_16}$$
 
 \end{frame}
 
+\begin{frame}{Our Project}
+\begin{itemize}
+\item We hope to build our own Distributed SGD model modeled based on both DistBelief and TensorFlow
+\begin{itemize}
+\item From TensorFlow- Use GRPC with Protocol Buffers to communicated between processes 
+\item From DistBelief -Implement Downpour-SGD (the most effective model with limited resources) first, and then attempt to implement Sandblaster
+\end{itemize}
+\end{itemize}
+\end{frame}
 
-\begin{frame}{gRPC}
+\begin{frame}{Our Example}
+Talk about image dataset
+\end{frame}
+
+\begin{frame}{Exploration of Downpour-SGD}
+\begin{itemize}
+\item The Downpour-SGD requires the passing of parameters between processes
+\item Bottleneck here is bandwidth 
+\item Parameters in the range of 100MB-50GB
+\end{itemize} 
+$$\includegraphics[scale = .27]{./img/large_data}$$
 
 \end{frame}
 
-\begin{frame}{Our Model}
-
+\begin{frame}{Exploration of Downpour-SGD}
+\begin{itemize}
+\item Many of these models are extremely sparse
+\begin{itemize}
+\item only send parameters updated
+\item only update parameters every $n_x$ times
+\end{itemize}
+\item Explore streaming vs single result
+\item Add diagram of why streaming could be helped
+\end{itemize} 
 \end{frame}
 
 
 
-\begin{frame}{Extensions}
-  
+\begin{frame}{Exploration of Downpour-SGD Algorithm}
+\begin{itemize}
+\item 
+\end{itemize} 
+
 \end{frame}
+
 
 \end{document}

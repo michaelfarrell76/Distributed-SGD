@@ -94,8 +94,8 @@ def make_batches(N_data, batch_size):
 def load_caltech100(): 
     # gen_data()
     one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-    images = np.load('images.npy')
-    output_labels = np.load('output_labels.npy')
+    images = np.load('images(16).npy')
+    output_labels = np.load('output_labels(16).npy')
     train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
     train_labels = one_hot(train_labels, 101)
     valid_labels = one_hot(valid_labels, 101)
@@ -104,7 +104,7 @@ def load_caltech100():
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-_REQUIRED_CHILDREN = 4
+_REQUIRED_CHILDREN = 3
 
 
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
@@ -133,8 +133,13 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         rs = npr.RandomState()
         self.W = rs.randn(self.N_weights) * self.param_scale
         self.param_len = self.W.shape[0]
+        print("# of parameters:")
+        print(self.param_len)
 
-        print("    Epoch      |    Train err  |   Test err  ")
+        # print("self.W")
+        # print(self.W)
+
+        # print("    Epoch      |    Train err  |   Test err  ")
 
 
    
@@ -142,28 +147,37 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         self.batch_idxs = make_batches(self.train_images.shape[0], self.batch_size)
         
 
-        self.cur_dir = np.zeros(N_weights)
+        self.cur_dir = np.zeros(self.N_weights)
 
         self.epoch = 0
         self.batch_num = 0
-        self.n_batches = len(self.batch_idxs)
+        self.n_batches = 10 #len(self.batch_idxs)
+        self.n_childs = 0
 
-    def print_perf(self, epoch):
-        test_perf  = frac_err(self.W, self.test_images, self.test_labels)
-        train_perf = frac_err(self.W, self.train_images, self.train_labels)
-        print("{0:15}|{1:15}|{2:15}".format(epoch, train_perf, test_perf))
+        print('Data loaded on server, waiting for clients....')
+        print('Number of child processes:0')
+
+    def print_perf(self):
+        test_perf  = self.frac_err(self.W, self.test_images, self.test_labels)
+        train_perf = self.frac_err(self.W, self.train_images, self.train_labels)
+        print("    Epoch      |    Train err  |   Test err  ")
+        print("{0:15}|{1:15}|{2:15}".format(self.epoch, train_perf, test_perf))
 
 
     def SendParams(self, request, context):
         self.child_ids.add(request.client_id)
-        print('Number of child processes:' + str(len(self.child_ids)))
+        if len(self.child_ids) != self.n_childs:
+            self.n_childs = len(self.child_ids)
+            print('Number of child processes:' + str(len(self.child_ids)))
+
 
         if len(self.child_ids) < _REQUIRED_CHILDREN:
             return dist_sgd_pb2.Params(tensor_len = 0, client_id = 0, data_indx = -1, float_val = np.zeros(0))
         else:
-            if data_indx > -1:
 
-                grad_W = request.float_val
+            if request.data_indx > -1:
+                print('Updating from client %d on process batch %d' % (request.client_id, request.data_indx))
+                grad_W = np.array(request.float_val)
 
                 self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
                 self.W -= self.learning_rate * self.cur_dir
@@ -171,10 +185,13 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
 
             if self.batch_num == self.n_batches:
                 self.batch_num, self.epoch = 0, self.epoch + 1
-                print_perf(epoch, W)
+                print('')
+                self.print_perf()
+                print('Epoch: %d' % self.epoch)
+                
 
             cur_batchnum, self.batch_num =  self.batch_num, self.batch_num + 1
-
+            print('Telling client %d to process batch %d' % (request.client_id, cur_batchnum))
             return dist_sgd_pb2.Params(tensor_len = self.param_len, client_id = request.client_id, data_indx = cur_batchnum, float_val = self.W)
 
 

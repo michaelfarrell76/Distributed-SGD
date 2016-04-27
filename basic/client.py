@@ -1,5 +1,5 @@
-
 from __future__ import print_function
+from __future__ import absolute_import
 
 from grpc.beta import implementations
 
@@ -7,7 +7,7 @@ import dist_sgd_pb2
 import time
 import argparse
 
-from __future__ import absolute_import
+
 from scipy.ndimage import imread
 from scipy.misc import imresize
 from sklearn.cross_validation import train_test_split
@@ -96,8 +96,8 @@ def make_batches(N_data, batch_size):
 def load_caltech100(): 
 	# gen_data()
 	one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-	images = np.load('images.npy')
-	output_labels = np.load('output_labels.npy')
+	images = np.load('images(16).npy')
+	output_labels = np.load('output_labels(16).npy')
 	train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
 	train_labels = one_hot(train_labels, 101)
 	valid_labels = one_hot(valid_labels, 101)
@@ -105,7 +105,7 @@ def load_caltech100():
 	return train_images, train_labels, valid_images, valid_labels
 
 
-_TIMEOUT_SECONDS = 5
+_TIMEOUT_SECONDS = 40
 
 
 
@@ -137,15 +137,20 @@ def run(client_id):
 	       
 	channel = implementations.insecure_channel('localhost', 50051)
 	stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
-	response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = 0, client_id = client_id, data_indx = -1, float_val = np.zeros(0)), _TIMEOUT_SECONDS)
+
+	print('Data loaded and connected to server:')
+	
 	try:
+		response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = 0, client_id = client_id, data_indx = -1, float_val = np.zeros(0)), _TIMEOUT_SECONDS)
 		while response.tensor_len != -1:
 			while response.tensor_len == 0:
-				time.sleep(_TIMEOUT_SECONDS)
+				time.sleep(5)
 				print('Waiting for server to send parameters')
 				response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = 0, client_id = client_id, data_indx = -1, float_val = np.zeros(0)), _TIMEOUT_SECONDS)
-			print('Processing parameters!')
-			grad_W = loss_grad(response.float_val, train_images[batch_idxs[response.data_indx]], train_labels[batch_idxs[response.data_indx]])
+			print('Processing parameters in batch %d!' % response.data_indx)
+			
+			grad_W = loss_grad(np.array(response.float_val), train_images[batch_idxs[response.data_indx]], train_labels[batch_idxs[response.data_indx]])
+
 
 
 			response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = response.tensor_len, client_id = client_id, data_indx = response.data_indx, float_val = grad_W), _TIMEOUT_SECONDS)

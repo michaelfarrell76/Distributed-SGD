@@ -97,6 +97,12 @@ source venv/bin/activate
 
 curl -fsSL https://goo.gl/getgrpc | bash -s python
 
+pip install numpy
+pip install scipy
+sudo pip install pillow
+pip install sklearn
+pip install autograd
+
 cd venv
 
 git clone https://github.com/grpc/grpc.git
@@ -121,6 +127,7 @@ Important links:
 https://github.com/grpc/homebrew-grpc
 https://docs.docker.com/engine/userguide/networking/
 http://www.bpython-interpreter.org
+https://github.com/mila-udem/fuel
 
 
 

@@ -100,7 +100,7 @@ cmd:option('-n_proc',           2,      			'The number of processes to farm out'
 cmd:option('-setup',    false,   'When true, executes code to setup external servers ')
 cmd:option('-remote',           false,   'When true, the farmed out processes are run on remote servers. overrides localhost')
 cmd:option('-torch_path',       '/home/michaelfarrell/torch/install/bin/th',   'The path to the torch directory')
-cmd:option('-extension',       'End-To-End-Generative-Dialogue/src/',   'The location from the home directory to the helper functions')
+cmd:option('-extension',       'Distributed-SGD/lua-lua',   'The location from the home directory to the helper functions')
 cmd:option('-username',       'michaelfarrell',   'The username for connecting to remote clients')
 
 -- Parse arguments

@@ -16,17 +16,27 @@ If you want to train on an Nvidia GPU using CUDA, you'll need to install the [CU
 $ luarocks install cutorch
 $ luarocks install cunn
 ```
-We need to ensure that our local version of parallel is installed. This can be done with a short bash script:
+We need to ensure that our local version of parallel is installed. This can be done with a short bash script from the lua-lua folder:
 ```bash
+$ cd lua-lua
 $ ./install_parallel.sh
 ```
 
-Lastly let us clone in the End-To-End-Generative-Dialogue repo which contains the most updated functions  
-```bash
-$ git clone https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue.git
-```
+## Demo-Usage
 
-## Usage
+## For Personal Usage
+
+## Directory Table of Contents
+```
+.
+├── lua-lua	     # Implementation of Distributed SGD in lua/torch
+├── python-python # Implementation of Distributed SGD in python
+├──.gitignore	
+├── Dev-Notebook-Kevin.md # Development notes
+├── Dev-Notebook-Mike.md
+├── README.md
+└── client_list.txt # List of available servers
+```
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

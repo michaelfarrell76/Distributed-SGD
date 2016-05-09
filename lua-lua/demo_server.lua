@@ -42,6 +42,9 @@ function worker()
             -- Load in data
             datafun = loadfile(ext .. "End-To-End-Generative-Dialogue/src/data.lua")
             data = datafun()
+
+            opt.data_file = ext .. opt.data_file
+            opt.val_data_file = ext .. opt.val_data_file
             
             -- Load in data to client
             train_data, valid_data = load_data(opt)

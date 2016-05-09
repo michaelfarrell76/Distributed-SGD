@@ -18,10 +18,25 @@ $ luarocks install cunn
 ```
 We need to ensure that our local version of parallel is installed. This can be done with a short bash script from the lua-lua folder:
 ```bash
+$ cd lua-lua
 $ ./install_parallel.sh
 ```
 
-## Usage
+## Demo-Usage
+
+## For Personal Usage
+
+## Directory Table of Contents
+```
+.
+├── lua-lua	     # Implementation of Distributed SGD in lua/torch
+├── python-python # Implementation of Distributed SGD in python
+├──.gitignore	
+├── Dev-Notebook-Kevin.md # Development notes
+├── Dev-Notebook-Mike.md
+├── README.md
+└── client_list.txt # List of available servers
+```
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

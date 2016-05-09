@@ -32,7 +32,7 @@ function worker()
             cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
 
             -- Load in functions
-            print(ext.."model_functions.lua")
+            print(ext.."End-To-End-Generative-Dialogue/src/model_functions.lua")
             funcs = loadfile(ext .. "model_functions.lua")
             funcs()
 

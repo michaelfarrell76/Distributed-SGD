@@ -13,11 +13,14 @@ from autograd import grad
 from nnet.neural_net import *
 from protobuf_utils.utils import * 
 
+images_fname = 'data/images(64).npy'
+labels_fname = 'data/output_labels(64).npy'
+
 _TIMEOUT_SECONDS = 6000
 
 def run(client_id):
 	# Load and process Caltech data
-	train_images, train_labels, test_images, test_labels = load_caltech100()
+	train_images, train_labels, test_images, test_labels = load_caltech100(images_fname, labels_fname)
 	image_input_d = train_images.shape[1]
 
     # Network parameters

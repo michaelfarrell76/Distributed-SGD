@@ -21,7 +21,6 @@ We need to ensure that our local version of parallel is installed. This can be d
 $ ./install_parallel.sh
 ```
 
-### For future versions 
 Lastly let us clone in the End-To-End-Generative-Dialogue repo which contains the most updated functions  
 ```bash
 $ git clone https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue.git

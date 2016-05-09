@@ -1,9 +1,19 @@
-data
+# Annoying files
+.DS_Store
+.ipynb_checkpoints
+Icon
+
+# data files
+data/
 basic/output_labels(128).npy
-install
 
+# Install files
+install/
 
+# Model saves
+*.t7
 
+# Annoying text files
 slides/main.aux
 slides/main.log
 slides/main.nav

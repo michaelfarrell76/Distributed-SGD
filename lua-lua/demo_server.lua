@@ -108,7 +108,7 @@ function demo_server:__init(opt)
             parallel.addremote( {ip=addr, cores=4, lua=self.opt.torch_path, protocol='ssh -ttq -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey'})
             parallel.print('Adding address ', addr)
         end
-    else 
+    elseif opt.localhost then
         parallel.print('Running clients through localhost')
 
         parallel.addremote({ip='localhost', cores=4, lua=self.opt.torch_path, protocol='ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey'})

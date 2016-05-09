@@ -1,0 +1,3 @@
+[submodule "lua-lua/End-To-End-Generative-Dialogue"]
+	path = lua-lua/End-To-End-Generative-Dialogue
+	url = https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue.git

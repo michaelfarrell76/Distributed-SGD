@@ -12,6 +12,9 @@ install/
 # Model saves
 *.t7
 
+# Other repo
+lua-lua/End-To-End-Generative-Dialogue/
+
 # Annoying text files
 slides/main.aux
 slides/main.log

@@ -1,29 +1,90 @@
-require 'parallel'
-
-
+------------------------------------------------------------------------
+-- demo_server.lua
+------------------------------------------------------------------------
 local demo_server = torch.class('demo_server')
 
 ------------
 -- Server class
 ------------
+-- Worker code
+function worker()
+    -- Alert successfully started up
+    parallel.print('Im a worker, my ID is: ',  parallel.id, ' and my IP: ', parallel.ip)
 
-function demo_server:__init()
-    -- Load in general functions
-funcs = loadfile("model_functions.lua")
-funcs()
+    -- Global indicating is a child
+    ischild = true
+    ext = ""
 
-    parallel.print('Loading data, parameters, model...')
-    self.ext = ""
-    self.train_data, self.valid_data, self.model, self.criterion, self.opt = main()
+    -- Number of packages received
+    local n_pkg = 0
 
-    -- Call the setup script to initialize servers
-    if self.opt.setup_servers then
-        parallel.print('Setting up remote servers')
-        os.execute('python server_init.py ')
+    while true do
+        -- Allow the parent to terminate the child
+        m = parallel.yield()
+        if m == 'break' then break end   
+
+        -- Receive data
+        local pkg = parallel.parent:receive()
+        if n_pkg == 0 then 
+            -- This is the first time receiving a package, it has the globals
+
+            parallel.print('Recieved initialization parameters')
+            cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
+
+            -- Load in functions
+            print(ext.."model_functions.lua")
+            funcs = loadfile(ext .. "model_functions.lua")
+            funcs()
+
+            -- Load in data
+            datafun = loadfile(ext .. "data.lua")
+            data = datafun()
+            
+            -- Load in data to client
+            train_data, valid_data, model, criterion, opt = main()
+
+
+            --point the wordvec to the right place
+            opt.pre_word_vecs = opt.extension .. opt.pre_word_vecs
+
+            first = false
+
+            -- send some data back
+            parallel.parent:send('Received parameters and loaded data successfully')
+        else
+            -- Make sure to clean everything up since big files are being passed
+            io.write('.') io.flush()
+            collectgarbage()
+
+            parallel.print('received params from batch with index: ', pkg.index)
+
+            -- Load in the parameters sent from the parent
+            for i = 1, #model.params do
+                model.params[i]:copy(pkg.parameters[i])
+            end
+
+
+            -- Training the model at the given index
+            local pkg_o = train_ind(pkg.index, model, criterion, train_data)
+
+            -- send some data back
+            parallel.print('sending back derivative for batch with index: ', pkg.index)
+            parallel.parent:send(pkg_o)
+        end
+        n_pkg = n_pkg + 1
     end
+end
 
+function demo_server:__init(opt)
+    self.opt = opt
+    -- Load in helper functions for this model
+    funcs = loadfile("End-To-End-Generative-Dialogue/src/model_functions.lua")
+    funcs()
 
-    -- Determine where the clients will be located
+    self:load_data()
+
+    self:build()
+
     if self.opt.remote then
         parallel.print('Runnings clients remotely')
         
@@ -38,51 +99,47 @@ funcs()
             local addr = self.opt.username .. '@' .. line
             addr = string.gsub(addr, "\n", "") -- remove line breaks
             parallel.addremote( {ip=addr, cores=4, lua=self.opt.torch_path, protocol='ssh -ttq -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey'})
-            print(addr)
+            parallel.print('Adding address ', addr)
         end
-    elseif opt.localhost then
+    else 
         parallel.print('Running clients through localhost')
 
-        parallel.addremote({ip='localhost', cores=4, lua=opt.torch_path, protocol='ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey'})
-    elseif opt.kevin then        
-        parallel.print('Running clients through Kevins computer')
-
-        parallel.addremote({ip='candokevin@10.251.53.101', cores=4, lua='/Users/candokevin/torch/install/bin/th', protocol='ssh -ttq'})
+        parallel.addremote({ip='localhost', cores=4, lua=self.opt.torch_path, protocol='ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey'})
     end
-
 end
 
-function demo_server:setup_servers()
-end
-
-function demo_server:fork_and_exec(worker_code)
-    parallel.print('Forking ', opt.n_proc, ' processes')
-    parallel.sfork(opt.n_proc)
+function demo_server:run()
+    parallel.print('Forking ', self.opt.n_proc, ' processes')
+    parallel.sfork(self.opt.n_proc)
     parallel.print('Forked')
 
     -- exec worker code in each process
     parallel.children:exec(worker)
     parallel.print('Finished telling workers to execute')
-end
-
-function demo_server:run()
-
     --send the global parameters to the children
     parallel.children:join()
     parallel.print('Sending parameters to children')
-    parallel.children:send({cmd = cmd, arg = arg, ext = opt.extension})
+    parallel.children:send({cmd = cmd, arg = arg, ext = self.opt.extension})
 
     -- Get the responses from the children
     replies = parallel.children:receive()
     parallel.print('Replies from children', replies)
 
     -- Train the model
-    train(model, criterion, train_data, valid_data)
+    train(self.model, self.criterion, self.train_data, self.valid_data)
     parallel.print('Finished training the model')
 
     -- sync/terminate when all workers are done
     parallel.children:join('break')
     parallel.print('All processes terminated')
+end
+
+function demo_server:load_data()
+    self.train_data, self.valid_data, self.opt = load_data(self.opt)
+end
+
+function demo_server:build()
+    self.model, self.criterion = build()
 end
 
 

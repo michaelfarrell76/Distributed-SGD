@@ -21,3 +21,13 @@ Lastly we need to ensure that our local version of parallel is installed. This c
 $ ./install_parallel.sh
 ```
 
+## Usage
+
+## Acknowledgments
+This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue
+
+Our implementation utilizes code from the following:
+
+* [Yoon Kim's seq2seq-attn repo](https://github.com/harvardnlp/seq2seq-attn)
+* [Element rnn library](https://github.com/Element-Research/rnn)
+* [Facebook's neural attention model](https://github.com/facebook/NAMAS)

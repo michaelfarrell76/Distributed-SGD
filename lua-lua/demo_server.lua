@@ -1,13 +1,13 @@
 require 'parallel'
 
 
-local sgd_server = torch.class('sgd_server')
+local demo_server = torch.class('demo_server')
 
 ------------
 -- Server class
 ------------
 
-function sgd_server:__init()
+function demo_server:__init()
     -- Load in general functions
 funcs = loadfile("model_functions.lua")
 funcs()
@@ -52,10 +52,10 @@ funcs()
 
 end
 
-function sgd_server:setup_servers()
+function demo_server:setup_servers()
 end
 
-function sgd_server:fork_and_exec(worker_code)
+function demo_server:fork_and_exec(worker_code)
     parallel.print('Forking ', opt.n_proc, ' processes')
     parallel.sfork(opt.n_proc)
     parallel.print('Forked')
@@ -65,7 +65,7 @@ function sgd_server:fork_and_exec(worker_code)
     parallel.print('Finished telling workers to execute')
 end
 
-function sgd_server:run()
+function demo_server:run()
 
     --send the global parameters to the children
     parallel.children:join()
@@ -86,4 +86,4 @@ function sgd_server:run()
 end
 
 
-return sgd_server
+return demo_server

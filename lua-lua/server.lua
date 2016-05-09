@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
--- train.lua
+-- server.lua
 --
--- General training file for this project. 
+-- An example of a parameter server in lua/torch
 --
 -- The file contains all of the command line arguments/parameters that 
 --      are used during training.
@@ -22,7 +22,7 @@ cmd = torch.CmdLine()
 
 -- Data files
 cmd:text("")
-cmd:text("**Data options**")
+cmd:text("**General options**")
 cmd:text("")
 
 cmd:option('-data_file',    'data/demo-train.hdf5',     'Path to the training *.hdf5 file from preprocess.py')

@@ -4,10 +4,10 @@ install
 
 
 
-stash/slides/main.aux
-stash/slides/main.log
-stash/slides/main.nav
-stash/slides/main.out
-stash/slides/main.snm
-stash/slides/main.synctex.gz
-stash/slides/main.toc
+slides/main.aux
+slides/main.log
+slides/main.nav
+slides/main.out
+slides/main.snm
+slides/main.synctex.gz
+slides/main.toc

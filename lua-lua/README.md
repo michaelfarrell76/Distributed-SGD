@@ -16,7 +16,7 @@ If you want to train on an Nvidia GPU using CUDA, you'll need to install the [CU
 $ luarocks install cutorch
 $ luarocks install cunn
 ```
-Lastly we need to ensure that our local version of parallel is installed:
+Lastly we need to ensure that our local version of parallel is installed. This can be done with a short bash script:
 ```bash
 $ ./install_parallel.sh
 ```

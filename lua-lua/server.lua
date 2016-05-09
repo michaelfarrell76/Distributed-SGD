@@ -19,7 +19,7 @@
 ------------------------------------------------------------------------
 
 -- Library used to handle data types
-require 'data'
+require 'End-To-End-Generative-Dialogue/src/data'
 
 -- Library used to run clients in parallel
 require 'parallel'

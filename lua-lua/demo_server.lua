@@ -8,7 +8,7 @@ local demo_server = torch.class('demo_server')
 ------------
 -- Worker code
 function worker()
-    opt = cmd:parse(arg)
+    
     -- Alert successfully started up
     parallel.print('Im a worker, my ID is: ',  parallel.id, ' and my IP: ', parallel.ip)
 
@@ -31,6 +31,8 @@ function worker()
 
             parallel.print('Recieved initialization parameters')
             cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
+
+            opt = cmd:parse(arg)
 
             -- Load in functions
             funcs = loadfile(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")

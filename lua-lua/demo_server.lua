@@ -33,7 +33,7 @@ function worker()
 
             -- Load in functions
             print(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
-            os.execute('ls '.. ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
+            os.execute('ls '.. ext .. "End-To-End-Generative-Dialogue/src/")
             funcs = loadfile(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
             funcs()
 

@@ -8,6 +8,7 @@ local demo_server = torch.class('demo_server')
 ------------
 -- Worker code
 function worker()
+    opt = cmd:parse(arg)
     -- Alert successfully started up
     parallel.print('Im a worker, my ID is: ',  parallel.id, ' and my IP: ', parallel.ip)
 
@@ -32,17 +33,16 @@ function worker()
             cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
 
             -- Load in functions
-            print(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
-            os.execute('ls '.. ext .. "End-To-End-Generative-Dialogue/src/")
             funcs = loadfile(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
             funcs()
 
             -- Load in data
-            datafun = loadfile(ext .. "data.lua")
+            datafun = loadfile(ext .. "End-To-End-Generative-Dialogue/src/data.lua")
             data = datafun()
             
             -- Load in data to client
-            train_data, valid_data, model, criterion, opt = main()
+            train_data, valid_data = load_data(opt)
+            model, criterion = build()
 
 
             --point the wordvec to the right place

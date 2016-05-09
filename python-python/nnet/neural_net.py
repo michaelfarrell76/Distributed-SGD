@@ -94,14 +94,14 @@ def make_batches(N_data, batch_size):
     return [slice(i, min(i+batch_size, N_data))
             for i in range(0, N_data, batch_size)]
 
-def load_caltech100(): 
-
+def load_caltech100(images_fname, labels_fname): 
     # if images(64).npy or output_labels(64).npy missing then
         # print('Generating data because it does not exist. Note that this may take a while')
     # gen_data()
     one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-    images = np.load('images(64).npy')
-    output_labels = np.load('output_labels(64).npy')
+    images = np.load(images_fname)
+    output_labels = np.load(labels_fname)
+    output_labels = np.load(labels_fname)
     train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
     train_labels = one_hot(train_labels, 101)
     valid_labels = one_hot(valid_labels, 101)

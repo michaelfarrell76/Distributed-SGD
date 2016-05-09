@@ -18,12 +18,15 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 _REQUIRED_CHILDREN = 1
 
+images_fname = 'data/images(64).npy'
+labels_fname = 'data/output_labels(64).npy'
+
 # import bpdb; bpdb.set_trace()
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
     def __init__(self):
         self.child_ids = Set([])
         # Load and process Caltech data
-        self.train_images, self.train_labels, self.test_images, self.test_labels = load_caltech100()
+        self.train_images, self.train_labels, self.test_images, self.test_labels = load_caltech100(images_fname, labels_fname)
         self.image_input_d = self.train_images.shape[1]
 
         # Network parameters
@@ -88,11 +91,12 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         # TODO: Should do some checks with how long the tensor is, fail if its incorrect size
         # Throw error and return status=0 then
 
+        # Gradient descent with momentum
         self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
         self.W -= 0.5 * self.learning_rate * self.cur_dir
         
+        # Basic gradient descent
         # self.W -= 0.5 * self.learning_rate * grad_W
-    
         # print('Done updating from batch %d' % (subtensor.data_indx))
 
         return dist_sgd_pb2.StatusCode(status=1)
@@ -143,18 +147,16 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
             traceback.print_exc()
 
 def serve():
+    # Allow argument that allows this parameter to be changed
+    BATCH_TRAIN_TIMEOUT = 60
     param_feeder = ParamFeeder()
     server = dist_sgd_pb2.beta_create_ParamFeeder_server(param_feeder)
     server.add_insecure_port('[::]:50051')
     server.start()
     try:
         while True:
-            # time.sleep(_ONE_DAY_IN_SECONDS)
-            # This time should not be hard coded, but should be processed to be average time for batch + 2sd
-            # or maybe user inputted, otherwise it takes a while to discover shitty machines
-            time.sleep(60)
+            time.sleep(BATCH_TRAIN_TIMEOUT)
             # param_feeder.clean_unprocessed()
-            # print(param_feeder.batches_processing)
 
     except KeyboardInterrupt:
         server.stop(0)

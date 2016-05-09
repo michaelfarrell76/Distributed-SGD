@@ -1,1 +1,1 @@
-# Distributed-SGD
+# Distributed-SGD for Python

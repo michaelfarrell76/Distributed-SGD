@@ -1,3 +1,13 @@
-/data
+data
 basic/output_labels(128).npy
-/install
+install
+
+
+
+stash/slides/main.aux
+stash/slides/main.log
+stash/slides/main.nav
+stash/slides/main.out
+stash/slides/main.snm
+stash/slides/main.synctex.gz
+stash/slides/main.toc

@@ -2,32 +2,60 @@
 
 syntax = "proto3";
 
+package dist_sgd;
+
 option java_multiple_files = true;
 option java_package = "io.dist_sgd";
 option java_outer_classname = "DistSGD";
-option objc_class_prefix = "DSG";
+//option objc_class_prefix = "DSG";
 
-package dist_sgd;
-
-//
+// Main server for passing infromation around
 service ParamFeeder {
   // Sends the parameters back and forth between server and client
-  rpc SendParams (Params) returns (Params) {}
+  rpc SendParams (ClientInfo) returns (stream SubTensor) {}
+
+  // Sends information about the next batch
+  rpc SendNextBatch (PrevBatch) returns (NextBatch) {}
+
+  // Gets gardient updates from client servers
+  rpc GetUpdates (stream SubTensor) returns (StatusCode) {}
 }
 
-// A very simple tensor
-message Params {
-  // The number of parameters
-  int32 tensor_len = 1;
+message SubTensor { 
+	// Length of the tensor getting passed
+	int32 tensor_len = 1; 
+	
+	// Current chunk of the tensor
+	int32 tensor_chunk = 2;
 
-  int32 client_id = 2;
+	// Serialized tensor getting passed
+	bytes tensor_content = 3;
 
-  int32 data_indx = 3;
-
-  // DT_FLOAT.
-  repeated float float_val = 4 [packed = true];
+	// Batch for gradient update, used to determine whether or not
+	// the gradient is stale and should be thrown out
+	int32 data_indx = 4;
 }
 
+// Later on we can extend client info to include information about processing speed, etc.
+message ClientInfo {
+	int32 client_id = 1;
+}
 
+// Includes information about sucesss and failure
+message StatusCode {
+	int32 status = 1;
+}
 
+message PrevBatch { 
+	int32 client_id = 1;
 
+	int32 prev_data_indx = 2;
+}
+
+message NextBatch { 
+	int32 client_id = 1;
+
+	int32 data_indx = 2;
+}
+
+message Empty {}

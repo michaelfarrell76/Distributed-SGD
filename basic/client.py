@@ -7,7 +7,6 @@ import dist_sgd_pb2
 import time
 import argparse
 
-
 from scipy.ndimage import imread
 from scipy.misc import imresize
 from sklearn.cross_validation import train_test_split
@@ -96,8 +95,8 @@ def make_batches(N_data, batch_size):
 def load_caltech100(): 
 	# gen_data()
 	one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-	images = np.load('images(16).npy')
-	output_labels = np.load('output_labels(16).npy')
+	images = np.load('images(64).npy')
+	output_labels = np.load('output_labels(64).npy')
 	train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
 	train_labels = one_hot(train_labels, 101)
 	valid_labels = one_hot(valid_labels, 101)
@@ -105,9 +104,27 @@ def load_caltech100():
 	return train_images, train_labels, valid_images, valid_labels
 
 
-_TIMEOUT_SECONDS = 40
+_TIMEOUT_SECONDS = 6000
 
+def convert_array_to_bytes(params):
+	if (params.dtype == np.float64):
+ 		params = params.astype(np.float32)
+	param_bytes = params.tostring()
+	return param_bytes
 
+def convert_bytes_to_array(param_bytes):
+	params = np.fromstring(param_bytes, dtype=np.float32)
+	return params
+
+def convert_tensor_iter(tensor_bytes, data_indx):
+	CHUNK_SIZE = 524228
+	tensor_bytes_len = len(tensor_bytes)
+	tensor_chunk_count = 0
+	while len(tensor_bytes):
+	    tensor_chunk_count += 1
+	    tensor_content = tensor_bytes[:CHUNK_SIZE]
+	    tensor_bytes = tensor_bytes[CHUNK_SIZE:]
+	    yield dist_sgd_pb2.SubTensor(tensor_len = tensor_bytes_len, tensor_chunk = tensor_chunk_count, tensor_content = tensor_content, data_indx = data_indx)
 
 def run(client_id):
 	# Load and process Caltech data
@@ -115,7 +132,10 @@ def run(client_id):
 	image_input_d = train_images.shape[1]
 
     # Network parameters
-	layer_sizes = [image_input_d, 1500, 650, 101]
+	layer_sizes = [image_input_d, 800, 600, 400, 350, 250, 101]
+   	# layer_sizes = [image_input_d, 1500, 650, 101]
+	# layer_sizes = [image_input_d, 200, 180, 150, 120, 101]
+
 	L2_reg = 1.0
 
 	# Training parameters
@@ -129,7 +149,6 @@ def run(client_id):
 	N_weights, pred_fun, loss_fun, frac_err = make_nn_funs(layer_sizes, L2_reg)
 	loss_grad = grad(loss_fun)
 
-
 	# Train with sgd
 	batch_idxs = make_batches(train_images.shape[0], batch_size)
 	cur_dir = np.zeros(N_weights)
@@ -138,36 +157,62 @@ def run(client_id):
 	channel = implementations.insecure_channel('localhost', 50051)
 	stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
 
+	prev_data_indx = -1
+
 	print('Data loaded and connected to server:')
 	
 	try:
-		response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = 0, client_id = client_id, data_indx = -1, float_val = np.zeros(0)), _TIMEOUT_SECONDS)
-		while response.tensor_len != -1:
-			while response.tensor_len == 0:
+		# prev_data_indx of -2 means failure, should probably change this to a different value / more specific field
+		response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
+		while response.data_indx != -2:
+			# Keep on trying to get your first batch
+			while response.data_indx == -1:
 				time.sleep(5)
-				print('Waiting for server to send parameters')
-				response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = 0, client_id = client_id, data_indx = -1, float_val = np.zeros(0)), _TIMEOUT_SECONDS)
+				print('Waiting for server to send next batch')
+				response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
 			print('Processing parameters in batch %d!' % response.data_indx)
+
+			# Generates the W matrix 
+			get_parameters_time = time.time()
+			W_bytes = ''
+			W_subtensors_iter = stub.SendParams(dist_sgd_pb2.ClientInfo(client_id=client_id), _TIMEOUT_SECONDS)
+			for W_subtensor_pb in W_subtensors_iter:
+				# TODO: Error checking of some sort in here
+				# SOME ERROR IS THROWN HERE
+				W_bytes = W_bytes + W_subtensor_pb.tensor_content
+			W = convert_bytes_to_array(W_bytes)
+			print('Received parameters in {0:.2f}s'.format(time.time() - get_parameters_time))
+
+			# Calculate the gradients
+			grad_start = time.time()
+			grad_W = loss_grad(W, train_images[batch_idxs[response.data_indx]], train_labels[batch_idxs[response.data_indx]])
+			print('Done calculating gradients in {0:.2f}s'.format(time.time() - grad_start))
 			
-			grad_W = loss_grad(np.array(response.float_val), train_images[batch_idxs[response.data_indx]], train_labels[batch_idxs[response.data_indx]])
+			# Serialize the gradients
+			tensor_compress_start = time.time()
+			tensor_bytes = convert_array_to_bytes(grad_W)
+			tensor_iterator = convert_tensor_iter(tensor_bytes, response.data_indx)
+			print('Done compressing gradients in {0:.2f}s'.format(time.time() - tensor_compress_start))
 
+			# Send the gradients
+			send_grad_start = time.time()
+			# import bpdb; bpdb.set_trace()
+			stub.GetUpdates(tensor_iterator, _TIMEOUT_SECONDS) 
+			print('Done sending gradients through in {0:.2f}s'.format(time.time() - send_grad_start))
 
+			# Get the next batch to process
+			prev_data_indx = response.data_indx
+			response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
 
-			response = stub.SendParams(dist_sgd_pb2.Params(tensor_len = response.tensor_len, client_id = client_id, data_indx = response.data_indx, float_val = grad_W), _TIMEOUT_SECONDS)
 
 	except KeyboardInterrupt:
 		pass
   	
-
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--id')
 	args = parser.parse_args()
 	arg_id = int(args.id)
 	assert(arg_id > 0)
-
-
-
-
-
+	# TODO: Client id should not need to be passed later
 	run(arg_id)

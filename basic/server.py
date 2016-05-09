@@ -17,6 +17,8 @@ from autograd.scipy.misc import logsumexp
 from autograd import grad
 from autograd.util import quick_grad_check
 
+import traceback
+
 # {0: 'accordion', 1: 'airplanes', 2: 'anchor', 3: 'ant', 4: 'BACKGROUND_Google', 5: 'barrel', 6: 'bass', 7: 'beaver', 8: 'binocular', 9: 'bonsai', 10: 'brain', 11: 'brontosaurus', 12: 'buddha', 13: 'butterfly', 14: 'camera', 15: 'cannon', 16: 'car_side', 17: 'ceiling_fan', 18: 'cellphone', 19: 'chair', 20: 'chandelier', 21: 'cougar_body', 22: 'cougar_face', 23: 'crab', 24: 'crayfish', 25: 'crocodile', 26: 'crocodile_head', 27: 'cup', 28: 'dalmatian', 29: 'dollar_bill', 30: 'dolphin', 31: 'dragonfly', 32: 'electric_guitar', 33: 'elephant', 34: 'emu', 35: 'euphonium', 36: 'ewer', 37: 'Faces', 38: 'Faces_easy', 39: 'ferry', 40: 'flamingo', 41: 'flamingo_head', 42: 'garfield', 43: 'gerenuk', 44: 'gramophone', 45: 'grand_piano', 46: 'hawksbill', 47: 'headphone', 48: 'hedgehog', 49: 'helicopter', 50: 'ibis', 51: 'inline_skate', 52: 'joshua_tree', 53: 'kangaroo', 54: 'ketch', 55: 'lamp', 56: 'laptop', 57: 'Leopards', 58: 'llama', 59: 'lobster', 60: 'lotus', 61: 'mandolin', 62: 'mayfly', 63: 'menorah', 64: 'metronome', 65: 'minaret', 66: 'Motorbikes', 67: 'nautilus', 68: 'octopus', 69: 'okapi', 70: 'pagoda', 71: 'panda', 72: 'pigeon', 73: 'pizza', 74: 'platypus', 75: 'pyramid', 76: 'revolver', 77: 'rhino', 78: 'rooster', 79: 'saxophone', 80: 'schooner', 81: 'scissors', 82: 'scorpion', 83: 'sea_horse', 84: 'snoopy', 85: 'soccer_ball', 86: 'stapler', 87: 'starfish', 88: 'stegosaurus', 89: 'stop_sign', 90: 'strawberry', 91: 'sunflower', 92: 'tick', 93: 'trilobite', 94: 'umbrella', 95: 'watch', 96: 'water_lilly', 97: 'wheelchair', 98: 'wild_cat', 99: 'windsor_chair', 100: 'wrench', 101: 'yin_yang'}
 
 def make_nn_funs(layer_sizes, L2_reg):
@@ -35,7 +37,7 @@ def make_nn_funs(layer_sizes, L2_reg):
         return outputs - logsumexp(outputs, axis=1, keepdims=True)
 
     def loss(W_vect, X, T):
-        log_prior = -L2_reg * np.dot(W_vect, W_vect)
+        log_prior = -L2_reg * np.dot(W_vect.T, W_vect)
         log_lik = np.sum(predictions(W_vect, X) * T)
         return - log_prior - log_lik
 
@@ -94,8 +96,8 @@ def make_batches(N_data, batch_size):
 def load_caltech100(): 
     # gen_data()
     one_hot = lambda x, K: np.array(x[:,None] == np.arange(K)[None, :], dtype=int)
-    images = np.load('images(16).npy')
-    output_labels = np.load('output_labels(16).npy')
+    images = np.load('images(64).npy')
+    output_labels = np.load('output_labels(64).npy')
     train_images, valid_images, train_labels, valid_labels = train_test_split(images, output_labels, test_size=0.20, random_state=1729)
     train_labels = one_hot(train_labels, 101)
     valid_labels = one_hot(valid_labels, 101)
@@ -104,8 +106,17 @@ def load_caltech100():
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-_REQUIRED_CHILDREN = 3
+_REQUIRED_CHILDREN = 1
 
+def convert_array_to_bytes(params):
+    if (params.dtype == np.float64):
+        params = params.astype(np.float32)
+    param_bytes = params.tostring()
+    return param_bytes
+
+def convert_bytes_to_array(param_bytes):
+    params = np.fromstring(param_bytes, dtype=np.float32)
+    return params
 
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
     def __init__(self):
@@ -115,7 +126,9 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         self.image_input_d = self.train_images.shape[1]
 
         # Network parameters
-        self.layer_sizes = [self.image_input_d, 1500, 650, 101]
+        self.layer_sizes = [self.image_input_d, 800, 600, 400, 350, 250, 101]
+        # self.layer_sizes = [self.image_input_d, 200, 180, 150, 120, 101]
+
         self.L2_reg = 1.0
 
         # Training parameters
@@ -136,74 +149,111 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         print("# of parameters:")
         print(self.param_len)
 
-        # print("self.W")
-        # print(self.W)
-
-        # print("    Epoch      |    Train err  |   Test err  ")
-
-
-   
         # Train with sgd
-        self.batch_idxs = make_batches(self.train_images.shape[0], self.batch_size)
-        
+        self.batch_idxs = make_batches(self.train_images.shape[0], self.batch_size)        
 
-        self.cur_dir = np.zeros(self.N_weights)
+        self.cur_dir = np.zeros(self.N_weights).astype(np.float32)
 
         self.epoch = 0
         self.batch_num = 0
-        self.n_batches = 10 #len(self.batch_idxs)
+        self.n_batches = len(self.batch_idxs)
         self.n_childs = 0
 
-        print('Data loaded on server, waiting for clients....')
-        print('Number of child processes:0')
+        # The batches that are currently being processed
+        self.batches_processing = {}
 
-    def print_perf(self):
+        # The batches that were failed to process, model training machine may have failed
+        # Send these batches to a new machine
+        self.batches_unprocessed = []
+
+        print('Data loaded on server, waiting for clients....')
+        print('Number of child processes: 0')
+
+    def print_perf(self, epoch):
         test_perf  = self.frac_err(self.W, self.test_images, self.test_labels)
         train_perf = self.frac_err(self.W, self.train_images, self.train_labels)
-        print("    Epoch      |    Train err  |   Test err  ")
-        print("{0:15}|{1:15}|{2:15}".format(self.epoch, train_perf, test_perf))
+        print("Epoch {0}, TrainErr {1:5}, TestErr {2:5}".format(self.epoch, train_perf, test_perf))
 
+    # TODO: Any batches that are taking too long are removed from batches_processing and added to batches_unprocessed
+    # def clean_unprocessed(self):
 
-    def SendParams(self, request, context):
+    def GetUpdates(self, request_iterator, context):
+        # CHECK TO SEE IF THE REQUEST IS STALE AND SHOULD BE THROWN OUT, INDICATED BY CLIENT_ID
+        tensor_bytes = ''  
+        for subtensor in request_iterator:
+            tensor_bytes = tensor_bytes + subtensor.tensor_content
+
+        grad_W = convert_bytes_to_array(tensor_bytes)
+        # TODO: Should do some checks with how long the tensor is, fail if its incorrect size
+        # Throw error and return status=0 then
+
+        self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
+        self.W -= 0.5 * self.learning_rate * self.cur_dir
+        
+        # self.W -= 0.5 * self.learning_rate * grad_W
+    
+        # print('Done updating from batch %d' % (subtensor.data_indx))
+
+        return dist_sgd_pb2.StatusCode(status=1)
+
+    def SendNextBatch(self, request, context):
+        # Does not start until a sufficient number of child processes exists
         self.child_ids.add(request.client_id)
         if len(self.child_ids) != self.n_childs:
             self.n_childs = len(self.child_ids)
-            print('Number of child processes:' + str(len(self.child_ids)))
-
-
+            print('Number of child processes: ' + str(len(self.child_ids)))
         if len(self.child_ids) < _REQUIRED_CHILDREN:
-            return dist_sgd_pb2.Params(tensor_len = 0, client_id = 0, data_indx = -1, float_val = np.zeros(0))
+            return dist_sgd_pb2.NextBatch(data_indx = -1)
+
+        # Logs information about previous batch timing
+        if request.prev_data_indx != -1:
+            print('Time taken to process batch {0} was {1:.2f} by client {2}'.format(request.prev_data_indx, (time.time() - self.batches_processing[request.prev_data_indx]), request.client_id))
+            del self.batches_processing[request.prev_data_indx]
+
+        # Print epoch information if we've hit the end of an epoch
+        if self.batch_num == self.n_batches:
+            self.batch_num, self.epoch = 0, self.epoch + 1
+            self.print_perf(self.epoch)
+
+        # Takes any previously failed batches first, otherwise takes next batch
+        if self.batches_unprocessed != []:
+            cur_batchnum = self.batches_unprocessed.pop(0)
         else:
-
-            if request.data_indx > -1:
-                print('Updating from client %d on process batch %d' % (request.client_id, request.data_indx))
-                grad_W = np.array(request.float_val)
-
-                self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
-                self.W -= self.learning_rate * self.cur_dir
-
-
-            if self.batch_num == self.n_batches:
-                self.batch_num, self.epoch = 0, self.epoch + 1
-                print('')
-                self.print_perf()
-                print('Epoch: %d' % self.epoch)
-                
-
             cur_batchnum, self.batch_num =  self.batch_num, self.batch_num + 1
-            print('Telling client %d to process batch %d' % (request.client_id, cur_batchnum))
-            return dist_sgd_pb2.Params(tensor_len = self.param_len, client_id = request.client_id, data_indx = cur_batchnum, float_val = self.W)
+        # print('Telling client %d to process batch %d' % (request.client_id, cur_batchnum))
+        # Should probably also add in the client_id as a key for this
+        self.batches_processing[cur_batchnum] = time.time()
 
+        return dist_sgd_pb2.NextBatch(data_indx = cur_batchnum)
 
-
+    def SendParams(self, request, context):
+        CHUNK_SIZE = 524228
+        tensor_bytes = convert_array_to_bytes(self.W)
+        tensor_bytes_len = len(tensor_bytes)
+        tensor_chunk_count = 0
+        try:
+            while len(tensor_bytes):
+                tensor_chunk_count += 1
+                tensor_content = tensor_bytes[:CHUNK_SIZE]
+                tensor_bytes = tensor_bytes[CHUNK_SIZE:]
+                yield dist_sgd_pb2.SubTensor(tensor_len = tensor_bytes_len, tensor_chunk = tensor_chunk_count, tensor_content = tensor_content, data_indx= -1)
+        except Exception, e:
+            traceback.print_exc()
 
 def serve():
-    server = dist_sgd_pb2.beta_create_ParamFeeder_server(ParamFeeder())
+    param_feeder = ParamFeeder()
+    server = dist_sgd_pb2.beta_create_ParamFeeder_server(param_feeder)
     server.add_insecure_port('[::]:50051')
     server.start()
     try:
         while True:
-            time.sleep(_ONE_DAY_IN_SECONDS)
+            # time.sleep(_ONE_DAY_IN_SECONDS)
+            # This time should not be hard coded, but should be processed to be average time for batch + 2sd
+            # or maybe user inputted, otherwise it takes a while to discover shitty machines
+            time.sleep(60)
+            # param_feeder.clean_unprocessed()
+            # print(param_feeder.batches_processing)
+
     except KeyboardInterrupt:
         server.stop(0)
 

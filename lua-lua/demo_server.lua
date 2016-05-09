@@ -33,6 +33,7 @@ function worker()
             cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
 
             opt = cmd:parse(arg)
+            opt.print = parallel.print
 
             -- Load in functions
             funcs = loadfile(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")

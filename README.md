@@ -4,7 +4,9 @@ An implementation of distributed stochastic gradient descent for both local and 
 
 ## Usage
 
-The usage varies depending on the native language. Please see the respective directory for the language you are interested in:
+The usage varies depending on the native language. 
+
+Please see the respective directory for the language you are interested in:
 
 Usage in [python](https://github.com/michaelfarrell76/Distributed-SGD/tree/master/python-python) 
 

@@ -207,17 +207,23 @@ $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNA
 - Once there is a green checkmark, click on the new instance
 
 ##### Adding remote clients
-You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. 
+You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. You will need to copy this list of files to the computer that you are going to use as the main parameter server. Choose an IP from the freshly updated 'client_list.txt' and set the $SERVER_IP environment variable:
+```bash
+$ SERVER_IP=130.211.160.115
+```
+Copy over 'client_list.txt' to the main server:
+```bash
+$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $USERNAME@SERVER_IP:~/Distributed-SGD
+```
 
 ##### Connecting to gcloud servers
 
 You can connect to one of the servers by running:
 ```bash
-$ IP_ADDR=130.211.160.115
 $ USERNAME=michaelfarrell
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
-where $username is the username you used to create the ssh key as defined above, and IP_ADDR is the ip address of the machine listed under "External ip" (i.e., 104.197.9.84). Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
+Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
 
 If you get an error like this:
 ```bash
@@ -246,7 +252,9 @@ Once connected, you need to again setup an ssh key from the computer that you ar
 Once this is done, you can run the server with remote gcloud clients using the command:
 ```bash
 $ cd Distributed-SGD/lua-lua
-$ th server.lua -n_proc 4 -remote
+$ EXTENSION=Distributed-SGD/lua-lua
+$ TORCH_PATH=/home/michaelfarrell/torch/install/bin/th
+$ th server.lua -n_proc 4 -remote -extension $EXTENSION  -torch_path $TORCH_PATH
 
 ```
 

@@ -284,6 +284,7 @@ If you are having your clients run remotely, you may also need to modify 'startu
 - Finish description
 - Finish Acknowledgements
 - Add in proto implementation
+- Add in git pull at startup
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

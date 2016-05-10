@@ -38,6 +38,10 @@ $ ./install_parallel.sh
 ## Description
 
 ## Demo-Usage
+Code is run from the lua-lua folder:
+```bash
+$ cd lua-lua
+```
 
 #### Local
 

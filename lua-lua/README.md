@@ -150,7 +150,7 @@ We only have to setup and install everything once, after which we can clone that
 - Under allowed protocols, put 'tcp:0-65535; udp:0-65535; icmp'
 - Create
 
-###### Setup the image
+###### Setup the disk
 - Wait for the VM instance to startup (indicated by a green check next to the instance)
 - Grab the external IP address for the instance 
 ```bash
@@ -168,34 +168,53 @@ Note you can connect to the server:
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNAL_IP
 ```
 - Once the server is setup to your liking, disconnect from the server and return to your google cloud dashboard
+- Go to the 'VM Dashboard'
+- Click on the instance you just setup, and delete it. This should remove the instance and save it as a disk. If you click on the 'disks' tab, you should see the instance name you just deleted.
+
+###### Create the image
+
+- Click on the 'Images' tab
+- 'Create Image'
+- Give it a name i.e. 'demo-image'
+- Under Source-Disk, choose the disk that you just created 
+- Create
+
 ##### Generate an 'Instance Template'
 - Click on the 'Instance templates' tab
 - Create new
-- Name the template 
-- Choose 8vCPU highmem as machine type
-- Choose Ubuntu 14.04 LTS as boot disk
-
+- Name the template i.e. 'demo-template'
+- Under 'Boot Disk' click change
+- At the top click 'Your image'
+- Choose the image you just created i.e. 'demo-image'
+- Set size to 30 GB
+- Select
+- Allow HTTP traffic
+- Allow HTTPS traffic
 - Under more->Disks, unclick 'Delete boot disk when instance is deleted'
 - Create
 
 ##### Generate an 'Instance Group'
 - Go to the "Instance groups" tab
 - Create instance group
-- Give the group a name, i.e. training-group-dev
+- Give the group a name, i.e. 'demo-group'
 - Give a description
 - Set zone to us-central1-b
 - Use instance template
-- Choose 'miket=template' or other template of choice
+- Choose the template you just made i.e. 'demo-template' 
 - Set the number of instances
 - Create
 - Wait for the instances to launch
 - Once there is a green checkmark, click on the new instance
+
+##### Adding remote clients
+You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. 
 
 ##### Connecting to gcloud servers
 
 You can connect to one of the servers by running:
 ```bash
 $ IP_ADDR=130.211.160.115
+$ USERNAME=michaelfarrell
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
 ```
 where $username is the username you used to create the ssh key as defined above, and IP_ADDR is the ip address of the machine listed under "External ip" (i.e., 104.197.9.84). Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
@@ -212,29 +231,16 @@ $ vim ~/.ssh/known_hosts
 ```
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
-##### Adding remote clients
-You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. 
-
-##### Initializing remote servers
-Before using the remote servers, we need to make sure that the servers are ready to go. This can be done by running
-```
-$ python server_init.py
-```
-from the src folder on your own computer. 
-
-##### Running the remote server:
+##### Running on remote servers:
 If the servers have been initialized, you will first want to connect to one of them:
 ```bash
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$IP_ADDR
 ```
 
-##### Running code with remote clients
-
 Once connected, you need to again setup an ssh key from the computer that you are using as the client.
 
-Again:
-
 1) [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
+
 2) [add key to gcloud server account](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#adding-ssh-key-to-gcloud-servers)
 
 Once this is done, you can run the server with remote gcloud clients using the command:
@@ -265,6 +271,7 @@ When developing, all command line arguments should be added in the file server.l
 - Clean up demo_server.lua
 - Finish Acknowledgements
 - Add in proto implementation
+- Add additional to Personal Usage
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

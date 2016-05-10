@@ -52,15 +52,21 @@ $ th server.lua -n_proc 4
 
 #### Remote - localhost
 
-In order to get the demo to connect through localhost rather than simply forking, we must first setup an .ssh key for this project. This is not really a practical setting, however the protocol is the same for running on remote servers and this is a good tool to use to debug problems with clients running on remote servers.
+In order to get the demo to connect through localhost rather than simply forking, we must first setup an .ssh key for this project. 
 
-###### Setup ssh key
+Note: This is basically doing the same thing as [local](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#local), except we now connect to the clients through localhost. This is a good tool to use to debug problems with clients running on remote servers.
+
+###### Generate ssh key
 Replace USERNAME with your username on the computer you want to connect to (i.e., USERNAME = michaelfarrell).
 ```bash
 $ USERNAME=michaelfarrell
 $ ssh-keygen -t rsa -f ~/.ssh/dist-sgd-sshkey -C $USERNAME
 ```
-Hit enter twice and a key should have been generated. In order to connect to clients through localhost, we must add the key to our list of authorized_keys:
+Hit enter twice and a key should have been generated. 
+
+###### Add ssh-key to authorized keys
+
+In order to connect to clients through localhost, we must add the key to our list of authorized_keys:
 ```bash
 $ cat ~/.ssh/dist-sgd-sshkey.pub >> ~/.ssh/authorized_keys
 $ chmod og-wx ~/.ssh/authorized_keys 
@@ -80,7 +86,7 @@ Instead of having the client programs running on your own computer, you can farm
 
 ###### Adding ssh key to gcloud servers
 
-If you did not yet setup the ssh key as described above, do so. 
+If you have yet to do so, [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
 
 Once you have created the key print it out:
 
@@ -174,8 +180,15 @@ $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$IP_ADDR
 ```
 
 ###### Running code with remote clients
-Once connected, you need to again setup an ssh key as listed in the instructions: "Set up an ssh key to connect to our servers" above.
-Once the key is created and added to the account, then:
+
+Once connected, you need to again setup an ssh key from the computer that you are using as the client.
+
+Again:
+
+1) [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
+2) [add key to gcloud server account](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#adding-ssh-key-to-gcloud-servers)
+
+Once this is done, you can run the server with remote gcloud clients using the command:
 ```bash
 $ cd Distributed-SGD/lua-lua
 $ th server.lua -n_proc 4 -remote

@@ -32,3 +32,4 @@ Usage in [lua/torch](https://github.com/michaelfarrell76/Distributed-SGD/tree/ma
 [Kevin Yang](https://github.com/kyang01)
 
 [Michael Farrell](https://github.com/michaelfarrell76)
+

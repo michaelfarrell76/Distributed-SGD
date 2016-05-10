@@ -25,16 +25,16 @@ $ bash install_parallel.sh
 ## Directory Table of Contents
 ```
 .
-├── data     # Folder holding data used for demo
-├── parallel # Folder containing the changes we added to the parallel class
-├── End-To-End-Generative-Dialgoue # Folder of our other repo containing the code used in demo
-├── README.md # lua-lua usage 
-├── server.lua # Main server file
+├── data                            # Folder holding data used for demo
+├── parallel                        # Folder containing the changes we added to the parallel class
+├── End-To-End-Generative-Dialgoue  # Folder of our other repo containing the code used in demo
+├── README.md                       # lua-lua usage 
+├── server.lua                      # Main server file
 ├── README.md
-├── startup.sh # Startup script for remote gcloud servers
-├── setup_image.sh # Script that copies startup.sh to remote server and calls startup.sh
-├── install_parallel.sh # script that installs our version of parallel
-└── demo_server.lua # A demo class that implements the server
+├── startup.sh                      # Startup script for remote gcloud servers
+├── setup_image.sh                  # Script that copies startup.sh to remote server and calls startup.sh
+├── install_parallel.sh             # script that installs our version of parallel
+└── demo_server.lua                 # A demo class that implements the server
 ```
 
 ## Description

@@ -22,21 +22,44 @@ $ cd lua-lua
 $ ./install_parallel.sh
 ```
 
+## Directory Table of Contents
+```
+.
+├── data     # Folder holding data used for demo
+├── parallel # Folder containing the changes we added to the parallel class
+├── End-To-End-Generative-Dialgoue # Folder of our other repo containing the code used in demo
+├── README.md # lua-lua usage 
+├── server.lua # Main server object
+├── README.md
+├── install_parallel.sh # script that installs our version of parallel
+└── demo_server.lua # A demo class that implements the server
+```
+
+## Description
+
 ## Demo-Usage
 
 ## For Personal Usage
 
-## Directory Table of Contents
-```
-.
-├── lua-lua	     # Implementation of Distributed SGD in lua/torch
-├── python-python # Implementation of Distributed SGD in python
-├──.gitignore	
-├── Dev-Notebook-Kevin.md # Development notes
-├── Dev-Notebook-Mike.md
-├── README.md
-└── client_list.txt # List of available servers
-```
+If you wish to extend this demo to work with your own SGD model you must simply create a new server class specific to your task, replacing the 'demo_server' class. Use the file 'demo_server.lua' as an example. The server only needs to have __init(opt) and run() functions defined in order to work. Once this class is properly defined (i.e. named 'new_server'), you can run the following to initiate your task:
+
+```bash
+$ NEW_SERVER_NAME=new_server
+$ th server.lua -server_class $NEW_SERVER_NAME # Plus Additional arguments 
+
+``` 
+
+When developing, all command line arguments should be added in the file server.lua. Look at the command arguments (th server.lua --help) that already exist and use those names when developing your model. If you need an additional command line argument, add it in server.lua. Other than this, there should be no reason to edit the server.lua file. 
+
+
+## TODO
+- Document data folder and include description in demo-usage about what the demo is
+- Add in documentation of how the data needs to be formatted in order to run the demo
+- Finish description
+- Finish demo-usage 
+- Clean up demo_server.lua
+- Finish Acknowledgements
+- Add in proto implementation
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

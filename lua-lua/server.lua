@@ -19,9 +19,6 @@
 -- to see a full list of options for the parameter server
 ------------------------------------------------------------------------
 
--- Library used to handle data types
-require 'End-To-End-Generative-Dialogue/src/data'
-
 -- Library used to run clients in parallel
 require 'parallel'
 
@@ -94,28 +91,32 @@ cmd:option('-save_every',   1,      'Save every this many epochs')
 cmd:option('-print_every',  5,      'Print stats after this many batches')
 cmd:option('-seed',         3435,   'Seed for random initialization')
 
-
 -- Parallel options
 cmd:option('-n_proc',           4,      	'The number of processes to farm out')
 cmd:option('-remote',           false,   	'When true, the farmed out processes are run on remote servers. This overrides localhost')
 cmd:option('-localhost',           false,   'When true, the farmed out processes are run on localhost. ')
 
-cmd:option('-torch_path',	'/home/michaelfarrell/torch/install/bin/th',   'The path to the torch directory on the client computers')
-cmd:option('-extension',    'Distributed-SGD/lua-lua/',   '					The location from the home directory to the lua-lua folder on the client computer')
-cmd:option('-username',     'michaelfarrell',   							 'The username for connecting used for connecting to remote clients')
+cmd:option('-torch_path',	'/Users/michaelfarrell/torch/install/bin/th',   'The path to the torch directory on the client computers')
+cmd:option('-extension',    '',   										'The location from the home directory to the lua-lua folder on the client computer')
+cmd:option('-username',     'michaelfarrell',   						'The username for connecting used for connecting to remote clients')
 
 -- Parse arguments
 opt = cmd:parse(arg)
+
+-- Indicate we are running things in parallel
+opt.parallel = true
+
+-- The print function
 opt.print = parallel.print
 
 -- Add on location to path of new class if not already in path
 package.path = opt.add_to_path .. package.path
 
--- Load in the class type
-server = require(opt.server_class)
-
 -- Main server function, initializes and runs
 function server_main()
+	-- Load in the class type
+	server = require(opt.server_class)
+
 	-- Print from parent process
 	parallel.print('Im the parent, my ID is: ',  parallel.id, ' and my IP: ', parallel.ip)
 

@@ -26,6 +26,9 @@ function worker()
 
         -- Receive data
         local pkg = parallel.parent:receive()
+        -- Make sure to clean everything up since big files are being passed
+        io.write('.') io.flush()
+        collectgarbage()
         if n_pkg == 0 then 
             -- This is the first time receiving a package, it has the globals
 
@@ -34,6 +37,7 @@ function worker()
 
             opt = cmd:parse(arg)
             opt.print = parallel.print
+            opt.parallel = true
 
             -- Load in functions
             funcs = loadfile(ext .. "End-To-End-Generative-Dialogue/src/model_functions.lua")
@@ -54,14 +58,9 @@ function worker()
             --point the wordvec to the right place
             opt.pre_word_vecs = opt.extension .. opt.pre_word_vecs
 
-            first = false
-
             -- send some data back
             parallel.parent:send('Received parameters and loaded data successfully')
         else
-            -- Make sure to clean everything up since big files are being passed
-            io.write('.') io.flush()
-            collectgarbage()
 
             parallel.print('received params from batch with index: ', pkg.index)
 
@@ -73,16 +72,18 @@ function worker()
 
             -- Training the model at the given index
             local pkg_o = train_ind(pkg.index, model, criterion, train_data)
-
             -- send some data back
             parallel.print('sending back derivative for batch with index: ', pkg.index)
             parallel.parent:send(pkg_o)
+
         end
         n_pkg = n_pkg + 1
     end
 end
 
 function demo_server:__init(opt)
+    -- Library used to handle data types
+require 'End-To-End-Generative-Dialogue/src/data'
     self.opt = opt
     -- Load in helper functions for this model
     funcs = loadfile("End-To-End-Generative-Dialogue/src/model_functions.lua")

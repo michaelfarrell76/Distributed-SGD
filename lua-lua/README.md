@@ -19,7 +19,7 @@ $ luarocks install cunn
 We need to ensure that our local version of parallel is installed. This can be done with a short bash script from the lua-lua folder:
 ```bash
 $ cd lua-lua
-$ ./install_parallel.sh
+$ bash install_parallel.sh
 ```
 
 ## Directory Table of Contents
@@ -45,42 +45,64 @@ $ cd lua-lua
 
 #### Local
 
-to run a worker with 4 parallel clients on your own machine:
+To run a worker with 4 parallel clients on your own machine:
 ```bash
-$ th server.lua -n_proc 4
+$ th server.lua -n_proc 4 
 ```
 
 #### Remote - localhost
 
-In order to get the demo to connect through localhost rather than simply forking, we must first setup an .ssh key for this project. This is not really a practical setting, however the protocol is the same for running on remote servers and this is a good tool to use to debug problems with clients running on remote servers.
+In order to get the demo to connect through localhost rather than simply forking, we must first setup an .ssh key for this project. 
 
-###### Setup ssh key
+Note: This is basically doing the same thing as [local](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#local), except we now connect to the clients through localhost. This is a good tool to use to debug problems with clients running on remote servers.
+
+##### Generate ssh key
 Replace USERNAME with your username on the computer you want to connect to (i.e., USERNAME = michaelfarrell).
 ```bash
 $ USERNAME=michaelfarrell
 $ ssh-keygen -t rsa -f ~/.ssh/dist-sgd-sshkey -C $USERNAME
 ```
-Hit enter twice and a key should have been generated. In order to connect to clients through localhost, we must add the key to our list of authorized_keys:
+Hit enter twice and a key should have been generated. 
+
+##### Add ssh-key to authorized keys
+
+In order to connect to clients through localhost, we must add the key to our list of authorized_keys:
 ```bash
 $ cat ~/.ssh/dist-sgd-sshkey.pub >> ~/.ssh/authorized_keys
 $ chmod og-wx ~/.ssh/authorized_keys 
 ```
 
-###### Connect via localhost
+##### Allow ssh connections
+
+In order to connect through localhost, you must allow your computer to allow incoming ssh connections. 
+
+On a Mac, this can be done by going to:
+
+System Preferences > Sharing
+
+and checking the 'Remote Login' box
+
+
+##### Connect via localhost
 
 You can now communicate over localhost using the command:
 
 ```bash
-$ th server.lua -n_proc 4 -localhost
+$ EXTENSION=Desktop/GoogleDrive/FinalProject/Distributed-SGD/lua-lua/
+$ TORCH_PATH=/Users/michaelfarrell/torch/install/bin/th
+$ th server.lua -n_proc 4 -localhost -extension $EXTENSION -torch_path $TORCH_PATH
 ```
+where $EXTENSION is the relative path to the lua-lua folder from the your directory and $TORCH_PATH is the absolute path to torch on your computer
 
 #### Remote - gcloud 
 
 Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud. 
 
-###### Adding ssh key to gcloud servers
+##### Adding ssh key to gcloud servers
 
-If you did not yet setup the ssh key as described above, do so. 
+We have to allow our gcloud servers to accept incoming ssh connections from our computer. 
+
+If you have yet to do so, [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
 
 Once you have created the key print it out:
 
@@ -89,7 +111,7 @@ $ cat ~/.ssh/dist-sgd-sshkey.pub
 ```
 
 Next you must add the key to the set of public keys :
-- Login to our google compute account. 
+- Login to your google compute account. 
 - Go to compute engine dashboard
 - Go to metdata tab
 - Go to ssh-key subtab
@@ -101,49 +123,107 @@ Restrict external access to the key:
 $ chmod 400 ~/.ssh/dist-sgd-sshkey
 ```
 
-###### Generate an 'Instance Template'
-- Click on the 'Instance templates' tab
-- Create new
-- Name the template 
+##### Create a baseline startup image
+
+We only have to setup and install everything once, after which we can clone that client. 
+
+###### Create the image
+- Click on the 'VM Instances' tab
+- Create Instance
+- Give the instance a name i.e. 'mike-baseline'
+- Set the zone to us-central1-b
 - Choose 8vCPU highmem as machine type
-- Choose Ubuntu 14.04 LTS as boot disk
+- Under boot disk click change
+- Choose Ubuntu 14.04 LTS
+- At the bottom change size to 30 GB and click 'select'
 - Allow HTTP traffic
 - Allow HTTPS traffic
-- Under more->Disks, unclick 'Delete boot disk when instance is deleted'
-- Create
+- Click 'Management, disk, networking, SSH keys' to dropdown more options
+- Under 'Disk' unclick 'Delete boot disk when instance is deleted'
+- Click 'Create' an you should see your new instance listed in the table
 
 ###### Allow tcp connections
-- Click on the 'Instance templates' tab
-- Click on the new template you created
-- Go down to networks and click on the 'default' link
+- Under the 'network' collumn, click 'default'
 - Go to 'Firewall rules' and Add a new rule
 - Set name to be 'all'
 - Set source filter to allow from any source
 - Under allowed protocols, put 'tcp:0-65535; udp:0-65535; icmp'
 - Create
 
+###### Setup the disk
+- Wait for the VM instance to startup (indicated by a green check next to the instance)
+- Grab the external IP address for the instance 
+```bash
+$ EXTERNAL_IP=104.154.48.250
+$ USERNAME=michaelfarrell
+```
+- Next you must modify the 'startup.sh' script to also include any additional installs that you may need on the server. This script is run from the home directory of the remote client. To run the demo, you do not need to modify this script.
+- Next you must modify the 'setup_image.sh' script so that it correctly calls your startup.sh script on the remote server. If you did not change 'startup.sh' script, you should probably not be changing this script either. 
+- Setup the image:
+```bash
+$ source setup_image.sh
+```
+Note you can connect to the server:
+```bash
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNAL_IP
+```
+- Once the server is setup to your liking, disconnect from the server and return to your google cloud dashboard
+- Go to the 'VM Dashboard'
+- Click on the instance you just setup, and delete it. This should remove the instance and save it as a disk. If you click on the 'disks' tab, you should see the instance name you just deleted.
 
-###### Generate an 'Instance Group'
+###### Create the image
+
+- Click on the 'Images' tab
+- 'Create Image'
+- Give it a name i.e. 'demo-image'
+- Under Source-Disk, choose the disk that you just created 
+- Create
+
+##### Generate an 'Instance Template'
+- Click on the 'Instance templates' tab
+- Create new
+- Name the template i.e. 'demo-template'
+- Under 'Boot Disk' click change
+- At the top click 'Your image'
+- Choose the image you just created i.e. 'demo-image'
+- Set size to 30 GB
+- Select
+- Allow HTTP traffic
+- Allow HTTPS traffic
+- Under more->Disks, unclick 'Delete boot disk when instance is deleted'
+- Create
+
+##### Generate an 'Instance Group'
 - Go to the "Instance groups" tab
 - Create instance group
-- Give the group a name, i.e. training-group-dev
+- Give the group a name, i.e. 'demo-group'
 - Give a description
 - Set zone to us-central1-b
 - Use instance template
-- Choose 'miket=template' or other template of choice
+- Choose the template you just made i.e. 'demo-template' 
 - Set the number of instances
 - Create
 - Wait for the instances to launch
 - Once there is a green checkmark, click on the new instance
 
-###### Connecting to gcloud servers
+##### Adding remote clients
+You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. You will need to copy this list of files to the computer that you are going to use as the main parameter server. Choose an IP from the freshly updated 'client_list.txt' and set the $SERVER_IP environment variable:
+```bash
+$ SERVER_IP=130.211.160.115
+```
+Copy over 'client_list.txt' to the main server:
+```bash
+$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $USERNAME@SERVER_IP:~/Distributed-SGD
+```
+
+##### Connecting to gcloud servers
 
 You can connect to one of the servers by running:
 ```bash
-$ IP_ADDR=130.211.160.115
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
+$ USERNAME=michaelfarrell
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
-where $username is the username you used to create the ssh key as defined above, and IP_ADDR is the ip address of the machine listed under "External ip" (i.e., 104.197.9.84). Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
+Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
 
 If you get an error like this:
 ```bash
@@ -157,28 +237,24 @@ $ vim ~/.ssh/known_hosts
 ```
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
-###### Adding remote clients
-You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. 
-
-###### Initializing remote servers
-Before using the remote servers, we need to make sure that the servers are ready to go. This can be done by running
-```
-$ python server_init.py
-```
-from the src folder on your own computer. 
-
-###### Running the remote server:
+##### Running on remote servers:
 If the servers have been initialized, you will first want to connect to one of them:
 ```bash
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$IP_ADDR
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
 ```
 
-###### Running code with remote clients
-Once connected, you need to again setup an ssh key as listed in the instructions: "Set up an ssh key to connect to our servers" above.
-Once the key is created and added to the account, then:
+Once connected, you need to again setup an ssh key from the computer that you are using as the client.
+
+1) [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
+
+2) [add key to gcloud server account](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#adding-ssh-key-to-gcloud-servers)
+
+Once this is done, you can run the server with remote gcloud clients using the command:
 ```bash
 $ cd Distributed-SGD/lua-lua
-$ th server.lua -n_proc 4 -remote
+$ EXTENSION=Distributed-SGD/lua-lua
+$ TORCH_PATH=/home/michaelfarrell/torch/install/bin/th
+$ th server.lua -n_proc 4 -remote -extension $EXTENSION  -torch_path $TORCH_PATH
 
 ```
 
@@ -203,6 +279,7 @@ When developing, all command line arguments should be added in the file server.l
 - Clean up demo_server.lua
 - Finish Acknowledgements
 - Add in proto implementation
+- Add additional to Personal Usage
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

@@ -45,9 +45,9 @@ $ cd lua-lua
 
 #### Local
 
-to run a worker with 4 parallel clients on your own machine:
+To run a worker with 4 parallel clients on your own machine:
 ```bash
-$ th server.lua -n_proc 4
+$ th server.lua -n_proc 4 
 ```
 
 #### Remote - localhost
@@ -88,8 +88,11 @@ and checking the 'Remote Login' box
 You can now communicate over localhost using the command:
 
 ```bash
-$ th server.lua -n_proc 4 -localhost
+$ EXTENSION=Desktop/GoogleDrive/FinalProject/Distributed-SGD/lua-lua/
+$ TORCH_PATH=/Users/michaelfarrell/torch/install/bin/th
+$ th server.lua -n_proc 4 -localhost -extension $EXTENSION -torch_path $TORCH_PATH
 ```
+where $EXTENSION is the relative path to the lua-lua folder from the your directory and $TORCH_PATH is the absolute path to torch on your computer
 
 #### Remote - gcloud 
 

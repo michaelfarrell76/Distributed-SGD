@@ -234,7 +234,7 @@ and delete the last few lines that were added. They should look like some ip add
 ##### Running on remote servers:
 If the servers have been initialized, you will first want to connect to one of them:
 ```bash
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$IP_ADDR
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
 ```
 
 Once connected, you need to again setup an ssh key from the computer that you are using as the client.

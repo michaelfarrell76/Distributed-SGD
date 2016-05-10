@@ -25,14 +25,16 @@ $ bash install_parallel.sh
 ## Directory Table of Contents
 ```
 .
-├── data     # Folder holding data used for demo
-├── parallel # Folder containing the changes we added to the parallel class
-├── End-To-End-Generative-Dialgoue # Folder of our other repo containing the code used in demo
-├── README.md # lua-lua usage 
-├── server.lua # Main server file
+├── data                            # Folder holding data used for demo
+├── parallel                        # Folder containing the changes we added to the parallel class
+├── End-To-End-Generative-Dialgoue  # Folder of our other repo containing the code used in demo
+├── README.md                       # lua-lua usage 
+├── server.lua                      # Main server file
 ├── README.md
-├── install_parallel.sh # script that installs our version of parallel
-└── demo_server.lua # A demo class that implements the server
+├── startup.sh                      # Startup script for remote gcloud servers
+├── setup_image.sh                  # Script that copies startup.sh to remote server and calls startup.sh
+├── install_parallel.sh             # script that installs our version of parallel
+└── demo_server.lua                 # A demo class that implements the server
 ```
 
 ## Description
@@ -45,9 +47,9 @@ $ cd lua-lua
 
 #### Local
 
-To run a worker with 4 parallel clients on your own machine:
+To run a worker with 2 parallel clients on your own machine:
 ```bash
-$ th server.lua -n_proc 4 
+$ th server.lua -n_proc 2
 ```
 
 #### Remote - localhost
@@ -57,7 +59,7 @@ In order to get the demo to connect through localhost rather than simply forking
 Note: This is basically doing the same thing as [local](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#local), except we now connect to the clients through localhost. This is a good tool to use to debug problems with clients running on remote servers.
 
 ##### Generate ssh key
-Replace USERNAME with your username on the computer you want to connect to (i.e., USERNAME = michaelfarrell).
+Replace USERNAME with your username on the computer you want to connect to:
 ```bash
 $ USERNAME=michaelfarrell
 $ ssh-keygen -t rsa -f ~/.ssh/dist-sgd-sshkey -C $USERNAME
@@ -130,7 +132,7 @@ We only have to setup and install everything once, after which we can clone that
 ###### Create the image
 - Click on the 'VM Instances' tab
 - Create Instance
-- Give the instance a name i.e. 'mike-baseline'
+- Give the instance a name i.e. 'demo-baseline'
 - Set the zone to us-central1-b
 - Choose 8vCPU highmem as machine type
 - Under boot disk click change
@@ -143,7 +145,7 @@ We only have to setup and install everything once, after which we can clone that
 - Click 'Create' an you should see your new instance listed in the table
 
 ###### Allow tcp connections
-- Under the 'network' collumn, click 'default'
+- Under the 'network' column, click 'default'
 - Go to 'Firewall rules' and Add a new rule
 - Set name to be 'all'
 - Set source filter to allow from any source
@@ -213,14 +215,13 @@ $ SERVER_IP=130.211.160.115
 ```
 Copy over 'client_list.txt' to the main server:
 ```bash
-$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $USERNAME@SERVER_IP:~/Distributed-SGD
+$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $USERNAME@$SERVER_IP:~/Distributed-SGD
 ```
 
 ##### Connecting to gcloud servers
 
 You can connect to one of the servers by running:
 ```bash
-$ USERNAME=michaelfarrell
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
 Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
@@ -238,9 +239,9 @@ $ vim ~/.ssh/known_hosts
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
 ##### Running on remote servers:
-If the servers have been initialized, you will first want to connect to one of them:
+If the servers have been initialized, you will first want to connect to the computer above that you chose to be the main server
 ```bash
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
 
 Once connected, you need to again setup an ssh key from the computer that you are using as the client.
@@ -268,18 +269,22 @@ $ th server.lua -server_class $NEW_SERVER_NAME # Plus Additional arguments
 
 ``` 
 
-When developing, all command line arguments should be added in the file server.lua. Look at the command arguments (th server.lua --help) that already exist and use those names when developing your model. If you need an additional command line argument, add it in server.lua. Other than this, there should be no reason to edit the server.lua file. 
+When developing, all command line arguments should be added in the file server.lua. Look at the command arguments 
+```bash 
+$ th server.lua --help
+```
+that already exist and use those names when developing your model. If you need an additional command line argument, add it in server.lua. Other than this, there should be no reason to edit the server.lua file. 
+
+If you are having your clients run remotely, you may also need to modify 'startup.sh' and 'setup_image.sh' so that they setup the server environements according to the specifications that you need. 
 
 
 ## TODO
 - Document data folder and include description in demo-usage about what the demo is
 - Add in documentation of how the data needs to be formatted in order to run the demo
 - Finish description
-- Finish demo-usage 
-- Clean up demo_server.lua
 - Finish Acknowledgements
 - Add in proto implementation
-- Add additional to Personal Usage
+- Add in git pull at startup
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

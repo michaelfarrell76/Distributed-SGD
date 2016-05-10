@@ -102,6 +102,7 @@ cmd:option('-username',     'michaelfarrell',   						'The username for connecti
 
 -- Parse arguments
 opt = cmd:parse(arg)
+torch.manualSeed(opt.seed)
 
 -- Indicate we are running things in parallel
 opt.parallel = true

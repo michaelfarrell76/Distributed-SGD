@@ -220,7 +220,6 @@ $ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $U
 
 You can connect to one of the servers by running:
 ```bash
-$ USERNAME=michaelfarrell
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
 Note: the flag `-o "StrictHostKeyChecking no"` automatically adds the host to your list and does not prompt confirmation.
@@ -238,9 +237,9 @@ $ vim ~/.ssh/known_hosts
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
 ##### Running on remote servers:
-If the servers have been initialized, you will first want to connect to one of them:
+If the servers have been initialized, you will first want to connect to the computer above that you chose to be the main server
 ```bash
-$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$IP_ADDR
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
 ```
 
 Once connected, you need to again setup an ssh key from the computer that you are using as the client.

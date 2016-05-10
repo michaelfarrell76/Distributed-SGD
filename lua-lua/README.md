@@ -45,9 +45,9 @@ $ cd lua-lua
 
 #### Local
 
-To run a worker with 4 parallel clients on your own machine:
+To run a worker with 2 parallel clients on your own machine:
 ```bash
-$ th server.lua -n_proc 4 
+$ th server.lua -n_proc 2
 ```
 
 #### Remote - localhost
@@ -57,7 +57,7 @@ In order to get the demo to connect through localhost rather than simply forking
 Note: This is basically doing the same thing as [local](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#local), except we now connect to the clients through localhost. This is a good tool to use to debug problems with clients running on remote servers.
 
 ##### Generate ssh key
-Replace USERNAME with your username on the computer you want to connect to (i.e., USERNAME = michaelfarrell).
+Replace USERNAME with your username on the computer you want to connect to:
 ```bash
 $ USERNAME=michaelfarrell
 $ ssh-keygen -t rsa -f ~/.ssh/dist-sgd-sshkey -C $USERNAME
@@ -280,6 +280,8 @@ When developing, all command line arguments should be added in the file server.l
 - Finish Acknowledgements
 - Add in proto implementation
 - Add additional to Personal Usage
+- Update TOC
+- 
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

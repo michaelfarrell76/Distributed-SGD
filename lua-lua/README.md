@@ -31,6 +31,8 @@ $ bash install_parallel.sh
 ├── README.md # lua-lua usage 
 ├── server.lua # Main server file
 ├── README.md
+├── startup.sh # Startup script for remote gcloud servers
+├── setup_image.sh # Script that copies startup.sh to remote server and calls startup.sh
 ├── install_parallel.sh # script that installs our version of parallel
 └── demo_server.lua # A demo class that implements the server
 ```
@@ -267,20 +269,21 @@ $ th server.lua -server_class $NEW_SERVER_NAME # Plus Additional arguments
 
 ``` 
 
-When developing, all command line arguments should be added in the file server.lua. Look at the command arguments (th server.lua --help) that already exist and use those names when developing your model. If you need an additional command line argument, add it in server.lua. Other than this, there should be no reason to edit the server.lua file. 
+When developing, all command line arguments should be added in the file server.lua. Look at the command arguments 
+```bash 
+$ th server.lua --help
+```
+that already exist and use those names when developing your model. If you need an additional command line argument, add it in server.lua. Other than this, there should be no reason to edit the server.lua file. 
+
+If you are having your clients run remotely, you may also need to modify 'startup.sh' and 'setup_image.sh' so that they setup the server environements according to the specifications that you need. 
 
 
 ## TODO
 - Document data folder and include description in demo-usage about what the demo is
 - Add in documentation of how the data needs to be formatted in order to run the demo
 - Finish description
-- Finish demo-usage 
-- Clean up demo_server.lua
 - Finish Acknowledgements
 - Add in proto implementation
-- Add additional to Personal Usage
-- Update TOC
-- 
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

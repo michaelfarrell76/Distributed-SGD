@@ -130,7 +130,7 @@ We only have to setup and install everything once, after which we can clone that
 ###### Create the image
 - Click on the 'VM Instances' tab
 - Create Instance
-- Give the instance a name i.e. 'mike-baseline'
+- Give the instance a name i.e. 'demo-baseline'
 - Set the zone to us-central1-b
 - Choose 8vCPU highmem as machine type
 - Under boot disk click change

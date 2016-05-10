@@ -143,7 +143,7 @@ We only have to setup and install everything once, after which we can clone that
 - Click 'Create' an you should see your new instance listed in the table
 
 ###### Allow tcp connections
-- Under the 'network' collumn, click 'default'
+- Under the 'network' column, click 'default'
 - Go to 'Firewall rules' and Add a new rule
 - Set name to be 'all'
 - Set source filter to allow from any source

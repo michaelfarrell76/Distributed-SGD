@@ -56,7 +56,7 @@ In order to get the demo to connect through localhost rather than simply forking
 
 Note: This is basically doing the same thing as [local](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#local), except we now connect to the clients through localhost. This is a good tool to use to debug problems with clients running on remote servers.
 
-###### Generate ssh key
+##### Generate ssh key
 Replace USERNAME with your username on the computer you want to connect to (i.e., USERNAME = michaelfarrell).
 ```bash
 $ USERNAME=michaelfarrell
@@ -64,7 +64,7 @@ $ ssh-keygen -t rsa -f ~/.ssh/dist-sgd-sshkey -C $USERNAME
 ```
 Hit enter twice and a key should have been generated. 
 
-###### Add ssh-key to authorized keys
+##### Add ssh-key to authorized keys
 
 In order to connect to clients through localhost, we must add the key to our list of authorized_keys:
 ```bash
@@ -72,7 +72,18 @@ $ cat ~/.ssh/dist-sgd-sshkey.pub >> ~/.ssh/authorized_keys
 $ chmod og-wx ~/.ssh/authorized_keys 
 ```
 
-###### Connect via localhost
+##### Allow ssh connections
+
+In order to connect through localhost, you must allow your computer to allow incoming ssh connections. 
+
+On a Mac, this can be done by going to:
+
+System Preferences > Sharing
+
+and checking the 'Remote Login' box
+
+
+##### Connect via localhost
 
 You can now communicate over localhost using the command:
 
@@ -84,7 +95,7 @@ $ th server.lua -n_proc 4 -localhost
 
 Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud. 
 
-###### Adding ssh key to gcloud servers
+##### Adding ssh key to gcloud servers
 
 If you have yet to do so, [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
 
@@ -107,7 +118,7 @@ Restrict external access to the key:
 $ chmod 400 ~/.ssh/dist-sgd-sshkey
 ```
 
-###### Generate an 'Instance Template'
+##### Generate an 'Instance Template'
 - Click on the 'Instance templates' tab
 - Create new
 - Name the template 
@@ -118,7 +129,7 @@ $ chmod 400 ~/.ssh/dist-sgd-sshkey
 - Under more->Disks, unclick 'Delete boot disk when instance is deleted'
 - Create
 
-###### Allow tcp connections
+##### Allow tcp connections
 - Click on the 'Instance templates' tab
 - Click on the new template you created
 - Go down to networks and click on the 'default' link
@@ -129,7 +140,7 @@ $ chmod 400 ~/.ssh/dist-sgd-sshkey
 - Create
 
 
-###### Generate an 'Instance Group'
+##### Generate an 'Instance Group'
 - Go to the "Instance groups" tab
 - Create instance group
 - Give the group a name, i.e. training-group-dev
@@ -142,7 +153,7 @@ $ chmod 400 ~/.ssh/dist-sgd-sshkey
 - Wait for the instances to launch
 - Once there is a green checkmark, click on the new instance
 
-###### Connecting to gcloud servers
+##### Connecting to gcloud servers
 
 You can connect to one of the servers by running:
 ```bash
@@ -163,23 +174,23 @@ $ vim ~/.ssh/known_hosts
 ```
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
-###### Adding remote clients
+##### Adding remote clients
 You will want to add your list of client servers to the file 'client_list.txt' where each line in the file is one of the external ip addresses located in the Instance group you are currently using. 
 
-###### Initializing remote servers
+##### Initializing remote servers
 Before using the remote servers, we need to make sure that the servers are ready to go. This can be done by running
 ```
 $ python server_init.py
 ```
 from the src folder on your own computer. 
 
-###### Running the remote server:
+##### Running the remote server:
 If the servers have been initialized, you will first want to connect to one of them:
 ```bash
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$IP_ADDR
 ```
 
-###### Running code with remote clients
+##### Running code with remote clients
 
 Once connected, you need to again setup an ssh key from the computer that you are using as the client.
 

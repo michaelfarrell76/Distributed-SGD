@@ -1,5 +1,21 @@
 #!/bin/bash
+# 
+# gcloud_startup.sh
+#	
+# This is a bash script that is used to setup a google cloud server. This script
+#	will install the following on the server:
+#		- git
+#		- luarocks
+#		- pip
+#		- torch
+#		- lua-parallel (local version)
+#		- rnn (torch) 
+#		- hdf5 (torch)
+#		- anaconda
+#		- h5py
+# The script will also clone the Distributed-SGD repo onto the server
 
+# Ensure that git is installed
 if hash git &> /dev/null
 then
 	echo -e "\033[0;32mgit installed\033[0m"
@@ -8,6 +24,7 @@ else
 	(echo "Y" | sudo apt-get install git) > /dev/null  
 fi
 
+# Ensure that luarocks is installed
 if hash luarocks &> /dev/null
 then
 	echo -e "\033[0;32mluarocks installed\033[0m"
@@ -16,6 +33,7 @@ else
 	(echo "Y" | sudo apt-get install luarocks) &> /dev/null  
 fi
 
+# Ensure that pip is installed
 if hash pip &> /dev/null
 then
 	echo -e "\033[0;32mpython-pip installed\033[0m"
@@ -26,6 +44,7 @@ fi
 
 source ~/.profile
 
+# Ensure that torch is installed
 if hash th &> /dev/null
 then
 	echo -e "\033[0;32mtorch installed\033[0m"
@@ -39,18 +58,7 @@ else
 	source ~/.profile
 fi
 
-
-if [ -e "lua---parallel" ]	
-then
-	echo -e "\033[0;32mparallel installed\033[0m"
-else
-	echo -e "\033[0;34mInstalling parallel ...\033[0m"
-	git clone https://github.com/clementfarabet/lua---parallel.git> /dev/null
-	cd lua---parallel
-	luarocks make > /dev/null
-	cd ..
-fi
-
+# Ensure that rnn is installed
 if (luarocks list | grep -q rnn) &> /dev/null  
 then
 	echo -e "\033[0;32mrnn installed\033[0m"
@@ -59,17 +67,10 @@ else
 	luarocks install rnn &> /dev/null  
 fi
 
-if (luarocks list | grep -q env) &> /dev/null  
-then
-	echo -e "\033[0;32menv installed\033[0m"
-else
-	echo -e "\033[0;34mInstalling env ...\033[0m"
-	luarocks install env &> /dev/null  
-fi
-
+# Ensure that torch-hdf5 is installed
 if (luarocks list | grep -q hdf5) &> /dev/null  
 then
-	echo -e "\033[0;hdf5 installed\033[0m"
+	echo -e "\033[0;32mhdf5 installed\033[0m"
 else
 	echo -e "\033[0;34mInstalling hdf5 ...\033[0m"
  	echo "Y" | sudo apt-get install libhdf5-serial-dev hdf5-tools > /dev/null  
@@ -79,21 +80,34 @@ else
  	cd ..
 fi
 
-if [ -e "End-To-End-Generative-Dialogue" ]
+# Make sure that the Distributed SGD is downloaded and isntalled
+if [ -e "Distributed-SGD" ]
 then 
-	echo -e "\033[0;34mPulling End-To-End-Generative-Dialogue repo changes ...\033[0m"
-	cd End-To-End-Generative-Dialogue
+	# Update the repos
+	echo -e "\033[0;34mPulling Distributed-SGD repo changes ...\033[0m"
+	cd Distributed-SGD
 	git pull &> /dev/null
-	cd ..
+	cd lua-lua/End-To-End-Generative-Dialogue
+	echo -e "\033[0;34mPulling End-To-End-Generative-Dialogue repo changes ...\033[0m"
+	git pull &> /dev/null
+
+	cd ../../..
 else
-	echo -e "\033[0;34mCloning repo End-To-End-Generative-Dialogue ...\033[0m"
- 	git clone https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue.git &> /dev/null
+	# Clone repo and install parallel
+	echo -e "\033[0;34mCloning repo Distributed-SGD ...\033[0m"
+ 	git clone --recursive https://github.com/michaelfarrell76/Distributed-SGD.git &> /dev/null
+ 	cd Distributed-SGD/lua-lua
+ 	bash install_parallel.sh 
+ 	cd ../../
 fi
 
+# Ensure that anaconda is installed 
 if [ -e "anaconda2" ]
 then 
-	echo -e "\033[0;anaconda installed\033[0m"
+	echo -e "\033[0;32manaconda installed\033[0m"
 	echo -e "\033[0;34mInstalling h5py ...\033[0m"
+
+	# Install hdf5 for python
 	echo "y" | conda install h5py &> /dev/null
 else
 	echo -e "\033[0;34mDownloading anaconda ...\033[0m"

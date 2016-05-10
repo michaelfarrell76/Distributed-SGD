@@ -21,14 +21,14 @@ then
 	echo -e "\033[0;32mparallel exists\033[0m"
 else
 	echo -e "\033[0;34mCloining Parallel Repo ...\033[0m"
-	git clone https://github.com/clementfarabet/lua---parallel.git
+	git clone https://github.com/clementfarabet/lua---parallel.git &> /dev/null
 fi
 
 cd lua---parallel
 echo -e "\033[0;34mCopying local init.lua file for parallel...\033[0m"
 cp ../../lua-lua/parallel/init.lua .
 echo -e "\033[0;34mBuilding local version of parallel...\033[0m"
-luarocks remove parallel
-luarocks make
+luarocks remove parallel &> /dev/null
+luarocks make &> /dev/null
 echo -e "\033[0;32mInstall complete\033[0m"
 

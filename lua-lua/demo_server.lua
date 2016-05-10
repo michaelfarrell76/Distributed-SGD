@@ -79,8 +79,10 @@ function worker()
             opt.data_file = ext .. opt.data_file
             opt.val_data_file = ext .. opt.val_data_file
 
-            --point the wordvec to the right place
-            opt.pre_word_vecs = opt.extension .. opt.pre_word_vecs
+            --point the wordvec to the right place if exists
+            if opt.pre_word_vecs ~= "" then
+                opt.pre_word_vecs = opt.extension .. opt.pre_word_vecs
+            end
             
             -- Load in data to client
             train_data, valid_data, opt = load_data(opt)

@@ -19,7 +19,7 @@ $ luarocks install cunn
 We need to ensure that our local version of parallel is installed. This can be done with a short bash script from the lua-lua folder:
 ```bash
 $ cd lua-lua
-$ ./install_parallel.sh
+$ bash install_parallel.sh
 ```
 
 ## Directory Table of Contents
@@ -100,6 +100,8 @@ Instead of having the client programs running on your own computer, you can farm
 
 ##### Adding ssh key to gcloud servers
 
+We have to allow our gcloud servers to accept incoming ssh connections from our computer. 
+
 If you have yet to do so, [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
 
 Once you have created the key print it out:
@@ -109,7 +111,7 @@ $ cat ~/.ssh/dist-sgd-sshkey.pub
 ```
 
 Next you must add the key to the set of public keys :
-- Login to our google compute account. 
+- Login to your google compute account. 
 - Go to compute engine dashboard
 - Go to metdata tab
 - Go to ssh-key subtab
@@ -121,27 +123,60 @@ Restrict external access to the key:
 $ chmod 400 ~/.ssh/dist-sgd-sshkey
 ```
 
-##### Generate an 'Instance Template'
-- Click on the 'Instance templates' tab
-- Create new
-- Name the template 
+##### Create a baseline startup image
+
+We only have to setup and install everything once, after which we can clone that client. 
+
+###### Create the image
+- Click on the 'VM Instances' tab
+- Create Instance
+- Give the instance a name i.e. 'mike-baseline'
+- Set the zone to us-central1-b
 - Choose 8vCPU highmem as machine type
-- Choose Ubuntu 14.04 LTS as boot disk
+- Under boot disk click change
+- Choose Ubuntu 14.04 LTS
+- At the bottom change size to 30 GB and click 'select'
 - Allow HTTP traffic
 - Allow HTTPS traffic
-- Under more->Disks, unclick 'Delete boot disk when instance is deleted'
-- Create
+- Click 'Management, disk, networking, SSH keys' to dropdown more options
+- Under 'Disk' unclick 'Delete boot disk when instance is deleted'
+- Click 'Create' an you should see your new instance listed in the table
 
-##### Allow tcp connections
-- Click on the 'Instance templates' tab
-- Click on the new template you created
-- Go down to networks and click on the 'default' link
+###### Allow tcp connections
+- Under the 'network' collumn, click 'default'
 - Go to 'Firewall rules' and Add a new rule
 - Set name to be 'all'
 - Set source filter to allow from any source
 - Under allowed protocols, put 'tcp:0-65535; udp:0-65535; icmp'
 - Create
 
+###### Setup the image
+- Wait for the VM instance to startup (indicated by a green check next to the instance)
+- Grab the external IP address for the instance 
+```bash
+$ EXTERNAL_IP=104.154.48.250
+$ USERNAME=michaelfarrell
+```
+- Next you must modify the 'startup.sh' script to also include any additional installs that you may need on the server. This script is run from the home directory of the remote client. To run the demo, you do not need to modify this script.
+- Next you must modify the 'setup_image.sh' script so that it correctly calls your startup.sh script on the remote server. If you did not change 'startup.sh' script, you should probably not be changing this script either. 
+- Setup the image:
+```bash
+$ source setup_image.sh
+```
+Note you can connect to the server:
+```bash
+$ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNAL_IP
+```
+- Once the server is setup to your liking, disconnect from the server and return to your google cloud dashboard
+##### Generate an 'Instance Template'
+- Click on the 'Instance templates' tab
+- Create new
+- Name the template 
+- Choose 8vCPU highmem as machine type
+- Choose Ubuntu 14.04 LTS as boot disk
+
+- Under more->Disks, unclick 'Delete boot disk when instance is deleted'
+- Create
 
 ##### Generate an 'Instance Group'
 - Go to the "Instance groups" tab

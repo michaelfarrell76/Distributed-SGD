@@ -154,6 +154,7 @@ We only have to setup and install everything once, after which we can clone that
 - Create
 
 ###### Setup the disk
+- Return to the 'VM instances' tab
 - Grab the external IP address for the instance 
 ```bash
 $ EXTERNAL_IP=104.154.48.250

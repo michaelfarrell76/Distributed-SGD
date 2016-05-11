@@ -239,7 +239,8 @@ $ vim ~/.ssh/known_hosts
 ```
 and delete the last few lines that were added. They should look like some ip address and then something that starts with AAAA. You can delete lines in vim by typing 'dd' to delete the current line. This can happen when you restart the servers and they change ip addresses, among other things.
 
-##### Running on remote servers:
+##### Adding ssh keys again
+
 If the servers have been initialized, you will first want to connect to the computer above that you chose to be the main server
 ```bash
 $ ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$SERVER_IP
@@ -250,6 +251,8 @@ Once connected, you need to again setup an ssh key from the computer that you ar
 1) [generate an ssh-key](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#generate-ssh-key)
 
 2) [add key to gcloud server account](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/lua-lua/README.md#adding-ssh-key-to-gcloud-servers)
+
+##### Running on remote servers:
 
 Once this is done, you can run the server with remote gcloud clients using the command:
 ```bash

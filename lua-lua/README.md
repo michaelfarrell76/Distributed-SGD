@@ -216,7 +216,7 @@ $ SERVER_IP=130.211.160.115
 ```
 Copy over 'client_list.txt' to the main server:
 ```bash
-$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey client_list.txt $USERNAME@$SERVER_IP:~/Distributed-SGD
+$ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey ../client_list.txt $USERNAME@$SERVER_IP:~/Distributed-SGD
 ```
 
 ##### Connecting to gcloud servers

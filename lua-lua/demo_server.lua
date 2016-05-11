@@ -127,7 +127,7 @@ function demo_server:__init(opt)
     require "lfs"
 
      -- Library used to handle data types
-    local data_loc = './End-To-End-Generative-Dialogue/src/data'
+    local data_loc = 'End-To-End-Generative-Dialogue/src/data'
     if not lfs.attributes(data_loc .. '.lua') then
         print('The file data.lua could not be found in ' .. data_loc .. '.lua')
         os.exit()

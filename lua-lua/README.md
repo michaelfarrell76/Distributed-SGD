@@ -145,6 +145,7 @@ We only have to setup and install everything once, after which we can clone that
 - Click 'Create' an you should see your new instance listed in the table
 
 ###### Allow tcp connections
+- Wait for the VM instance to startup (indicated by a green check next to the instance)
 - Under the 'network' column, click 'default'
 - Go to 'Firewall rules' and Add a new rule
 - Set name to be 'all'
@@ -153,7 +154,6 @@ We only have to setup and install everything once, after which we can clone that
 - Create
 
 ###### Setup the disk
-- Wait for the VM instance to startup (indicated by a green check next to the instance)
 - Grab the external IP address for the instance 
 ```bash
 $ EXTERNAL_IP=104.154.48.250

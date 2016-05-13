@@ -89,7 +89,7 @@ then
 	git pull &> /dev/null
 	cd lua-lua/End-To-End-Generative-Dialogue
 	echo -e "\033[0;34mPulling End-To-End-Generative-Dialogue repo changes ...\033[0m"
-	git pull &> /dev/null
+	git pull origin master &> /dev/null
 
 	cd ../../..
 else

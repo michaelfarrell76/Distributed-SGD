@@ -289,6 +289,11 @@ If you are having your clients run remotely, you may also need to modify 'startu
 - Finish Acknowledgements
 - Add in proto implementation
 - Add in git pull at startup
+- add way to catch if failure down and reset
+- maybe add paxos if kevin is successful 
+- try adding protobufs 
+- get results
+
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

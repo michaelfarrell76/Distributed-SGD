@@ -60,6 +60,8 @@ cmd:option('-num_layers',       2,      'Number of layers in the LSTM encoder/de
 cmd:option('-hidden_size',      300,    'Size of LSTM hidden states')
 cmd:option('-word_vec_size',    300,    'Word embedding sizes')
 cmd:option('-layer_type',       'lstm', 'Recurrent layer type (rnn, gru, lstm, fast)')
+cmd:option('-model_type',       'red', 	'Model structure (red, hred)')
+
 
 cmd:text("")
 cmd:text("**Optimization options**")

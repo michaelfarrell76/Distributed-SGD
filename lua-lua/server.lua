@@ -94,6 +94,7 @@ cmd:option('-save_every',   1,      'Save every this many epochs')
 cmd:option('-print_every',  5,      'Print stats after this many batches')
 cmd:option('-seed',         3435,   'Seed for random initialization')
 
+
 -- Parallel options
 cmd:option('-n_proc',           4,      	'The number of processes to farm out')
 cmd:option('-remote',           false,   	'When true, the farmed out processes are run on remote servers. This overrides localhost')

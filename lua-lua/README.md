@@ -98,7 +98,7 @@ where $EXTENSION is the relative path to the lua-lua folder from the your direct
 
 #### Remote - gcloud 
 
-Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud. 
+Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud (gcloud offers 60 day free trials with $300 worth of credit). 
 
 ##### Adding ssh key to gcloud servers
 

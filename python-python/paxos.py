@@ -28,7 +28,7 @@ class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     	self.n = 0
     	self.v = ''
     	self.n_v = 0
-    	self.backoff = int(10 * random.random())
+    	self.backoff = int(100 * random.random())
     	self.consensus_reached = False
     	self.address = hostname
     	self.new_server = None

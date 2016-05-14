@@ -26,6 +26,10 @@ _TIMEOUT_SECONDS = 20
 TENSOR_TIMEOUT_SECONDS = 60
 SERVER_PORT = 50051
 
+
+def log_info(value):
+    print(str(time.time()) + ' ' + value)
+
 def gen_local_address(local_id):
 	if local_id is None:
 		addr = subprocess.check_output("ip addr show eth0 | grep 'inet' | cut -d ' ' -f8", shell=True)
@@ -75,6 +79,7 @@ def find_server(local_id=None):
 				return server_address
 			except Exception as e:
 				if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
+					log_info(str(e))
 					continue
 				else:
 					# More severe error, should log and crash
@@ -103,7 +108,6 @@ def run(local_id = None):
 
 	# Training parameters
 	param_scale = 0.1
-	learning_rate = 1e-3
 	momentum = 0.9
 	batch_size = 256
 	num_epochs = 50
@@ -125,21 +129,21 @@ def run(local_id = None):
 		server_addr = run_paxos(local_id)
 		if server_addr == '':
 			server_addr = find_server(local_id)
-	print('Server address is ' + server_addr)
+	log_info('Server address is ' + server_addr)
 
 	if server_addr == gen_local_address(local_id):
-		print('Transforming into the server')
+		log_info('Transforming into the server')
 		try:
 			serve(server_addr, None, prev_data_indx, local_id)
 		except KeyboardInterrupt as e:
-			print('interrupted')
+			log_info('interrupted')
 			sys.exit(0)
 		return
 
 	stub = connect_server_stub(server_addr, local_id)
 	client_id = 0
 
-	print('Data loaded and connected to server:')
+	log_info('Data loaded and connected to server:')
 	
 	# prev_data_indx of -2 means failure, should probably change this to a different value / more specific field
 	try:
@@ -149,9 +153,9 @@ def run(local_id = None):
 			# Keep on trying to get your first batch
 			while response.data_indx == -1:
 				time.sleep(5)
-				print('Waiting for server to send next batch')
+				log_info('Waiting for server to send next batch')
 				response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
-			print('Processing parameters in batch %d!' % response.data_indx)
+			log_info('Processing parameters in batch %d!' % response.data_indx)
 
 			# Generates the W matrix 
 			get_parameters_time = time.time()
@@ -162,23 +166,23 @@ def run(local_id = None):
 				# SOME ERROR IS THROWN HERE
 				W_bytes = W_bytes + W_subtensor_pb.tensor_content
 			W = convert_bytes_to_array(W_bytes)
-			print('Received parameters in {0:.2f}s'.format(time.time() - get_parameters_time))
+			log_info('Received parameters in {0:.2f}s'.format(time.time() - get_parameters_time))
 
 			# Calculate the gradients
 			grad_start = time.time()
 			grad_W = loss_grad(W, train_images[batch_idxs[response.data_indx]], train_labels[batch_idxs[response.data_indx]])
-			print('Done calculating gradients in {0:.2f}s'.format(time.time() - grad_start))
+			log_info('Done calculating gradients in {0:.2f}s'.format(time.time() - grad_start))
 			
 			# Serialize the gradients
 			tensor_compress_start = time.time()
 			tensor_bytes = convert_array_to_bytes(grad_W)
 			tensor_iterator = convert_tensor_iter(tensor_bytes, response.data_indx)
-			print('Done compressing gradients in {0:.2f}s'.format(time.time() - tensor_compress_start))
+			log_info('Done compressing gradients in {0:.2f}s'.format(time.time() - tensor_compress_start))
 
 			# Send the gradients
 			send_grad_start = time.time()
 			stub.GetUpdates(tensor_iterator, _TIMEOUT_SECONDS) 
-			print('Done sending gradients through in {0:.2f}s'.format(time.time() - send_grad_start))
+			log_info('Done sending gradients through in {0:.2f}s'.format(time.time() - send_grad_start))
 
 			# Get the next batch to process
 			prev_data_indx = response.data_indx
@@ -193,7 +197,7 @@ def run(local_id = None):
 		if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
 			consec_expiration += 1
 			if consec_expiration == 2:
-				print('Failure to connect to server_stub. Starting Paxos')
+				log_info('Failure to connect to server_stub. Starting Paxos')
 				while server_addr == '':
 					server_addr = run_paxos(local_id)
 					if server_addr == '':
@@ -203,11 +207,11 @@ def run(local_id = None):
 					return
 				stub = connect_server_stub(server_addr)
 		else:
-			print(traceback.print_exc())
+			log_info(traceback.print_exc())
 			sys.exit(0)
 
 if __name__ == '__main__':
-	print('Starting client')
+	log_info('Starting client')
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--id')
 	args = parser.parse_args()

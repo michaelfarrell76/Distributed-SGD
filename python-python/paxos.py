@@ -20,6 +20,9 @@ import subprocess
 _TIMEOUT_SECONDS = 10
 PAXOS_PORT_STR = 50052
 
+def log_info(value):
+    print(str(time.time()) + ' ' + value)
+
 # Actual impelementation of the PaxosServer that is used to communicate between the clients. 
 # These are instantiated simply to determine the future main server from many different clients.
 class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
@@ -61,7 +64,7 @@ def run_server(server, paxos_server):
 		try:
 			if paxos_server.consensus_reached:
 				if paxos_server.new_server != '':
-					print('Consensus reached, server shutting down')
+					log_info('Consensus reached, server shutting down')
 				time.sleep(5)
 				server.stop(0)
 				break
@@ -85,7 +88,7 @@ def send_proposals(server_stubs, self_paxos_server):
 
 	n_proposal = self_paxos_server.n
 	value = self_paxos_server.address
-	print('Making a proposal from {0} for n = {1} '.format(self_paxos_server.address, n_proposal))
+	log_info('Making a proposal from {0} for n = {1} '.format(self_paxos_server.address, n_proposal))
 
 	n_so_far = 0
 	failed = False
@@ -99,7 +102,7 @@ def send_proposals(server_stubs, self_paxos_server):
 			# Sees a higher n value then it's current value and immediately stops the process
 			if response.n >= n_proposal:
 				failed = True
-				print('Proposal ' + str(n_proposal) + ' failed')
+				log_info('Proposal ' + str(n_proposal) + ' failed')
 				break
 			else:
 			 	if response.n_v > n_so_far:
@@ -108,7 +111,7 @@ def send_proposals(server_stubs, self_paxos_server):
 				responded += 1
 		except Exception as e:
 			if ('ExpirationError' in str(e)):
-				print('Failure to connect to server_stub')
+				log_info('Failure to connect to server_stub')
 				continue
 			else:
 				# More severe error, should log and crash
@@ -136,10 +139,10 @@ def request_accept(server_stubs, self_paxos_server, n_proposal, value):
 		if response.accept_bool:
 			accepted += 1
 	if accepted > len(server_stubs) / 2.0:
-		print('Proposal accepted')
+		log_info('Proposal accepted')
 		return True
 	else:
-		print('Proposal {0} rejected with value {1}'.format(n_proposal, value))
+		log_info('Proposal {0} rejected with value {1}'.format(n_proposal, value))
 		return False
 
 
@@ -153,7 +156,7 @@ def check_stubs_up(stubs):
 			responses += 1
 		except Exception as e:
 			if ('ExpirationError' in str(e)):
-				print('Failure to connect to server_stub during startup')
+				log_info('Failure to connect to server_stub during startup')
 				continue
 			else:
 				# More severe error, should log and crash
@@ -224,7 +227,7 @@ def paxos_loop(self_paxos_server, local_id):
 				self_paxos_server.new_server = ''
 				break
 			start_paxos(server_stubs, self_paxos_server)
-			send_proposal_time = int(random.random() * self_paxos_server.backoff)
+			send_proposal_time = int(random.gauss(1, 0.25) * self_paxos_server.backoff)
 			time_slept = 0
 
 def gen_local_address(local_id):
@@ -262,7 +265,7 @@ def gen_server_addresses(local_id, local_address=None):
 # This is the final function that exterior functions will call
 def run_paxos(local_id=None):
 	hostname = gen_local_address(local_id)
-	print(hostname + ' called to run Paxos for determining the server')
+	log_info(hostname + ' called to run Paxos for determining the server')
 
 	paxos_server, server = create_server(hostname, local_id)
 	try:
@@ -270,9 +273,9 @@ def run_paxos(local_id=None):
 		start_paxos = time.time()
 		paxos_loop(paxos_server, local_id)
 		if paxos_server.new_server != '':
-			print('Done, new server is: {0} finished paxos in {1:2}s'.format(paxos_server.new_server, time.time()-start_paxos))
+			log_info('Done, new server is: {0} finished paxos in {1:2}s'.format(paxos_server.new_server, time.time()-start_paxos))
 		else:
-			print('Failure to connect to other allocated instances. Stopping paxos.')
+			log_info('Failure to connect to other allocated instances. Stopping paxos.')
 	except KeyboardInterrupt:
 		sys.exit(0)
 	finally:
@@ -288,4 +291,4 @@ if __name__ == '__main__':
 	if local_id is not None:
 		local_id = int(local_id)
 		assert(local_id > 0)
-	print(run_paxos(local_id))
+	log_info(run_paxos(local_id))

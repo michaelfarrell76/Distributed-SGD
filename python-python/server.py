@@ -21,6 +21,9 @@ _REQUIRED_CHILDREN = 1
 images_fname = 'data/images(64).npy'
 labels_fname = 'data/output_labels(64).npy'
 
+def log_info(value):
+    print(str(time.time()) + ' ' + value)
+
 # import bpdb; bpdb.set_trace()
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
     def __init__(self, W = None, prevBatch=None):
@@ -37,7 +40,7 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
 
         # Training parameters
         self.param_scale = 0.1
-        self.learning_rate = 1e-6
+        self.learning_rate = 1e-5
         self.momentum = 0.9
         self.batch_size = 256
         self.num_epochs = 50
@@ -55,8 +58,8 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
             self.W = W
 
         self.param_len = self.W.shape[0]
-        print("# of parameters:")
-        print(self.param_len)
+        log_info("# of parameters:")
+        log_info(self.param_len)
 
         # Train with sgd
         self.batch_idxs = make_batches(self.train_images.shape[0], self.batch_size)        
@@ -81,16 +84,16 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         # Send these batches to a new machine
         self.batches_unprocessed = []
 
-        print('Data loaded on server, waiting for clients....')
-        print('Number of child processes: 0')
+        log_info('Data loaded on server, waiting for clients....')
+        log_info('Number of child processes: 0')
 
-    def print_perf(self, epoch):
+    def log_info_perf(self, epoch):
         test_perf  = self.frac_err(self.W, self.test_images, self.test_labels)
         train_perf = self.frac_err(self.W, self.train_images, self.train_labels)
         if test_perf > self.prev_test_perf:
-            self.learning_rate = 0.5 * self.learning_rate
+            self.learning_rate = 0.1 * self.learning_rate
         self.prev_test_perf = test_perf
-        print("Epoch {0}, TrainErr {1:5}, TestErr {2:5}, LR {3:2}".format(self.epoch, train_perf, test_perf, self.learning_rate))
+        log_info("Epoch {0}, TrainErr {1:5}, TestErr {2:5}, LR {3:2}".format(self.epoch, train_perf, test_perf, self.learning_rate))
 
     # TODO: Any batches that are taking too long are removed from batches_processing and added to batches_unprocessed
     # def clean_unprocessed(self):
@@ -128,19 +131,19 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         self.child_ids.add(request.client_id)
         if len(self.child_ids) != self.n_childs:
             self.n_childs = len(self.child_ids)
-            print('Number of child processes: ' + str(len(self.child_ids)))
+            log_info('Number of child processes: ' + str(len(self.child_ids)))
         if len(self.child_ids) < _REQUIRED_CHILDREN:
             return dist_sgd_pb2.NextBatch(client_id=request.client_id, data_indx = -1)
 
         # Logs information about previous batch timing
         if request.prev_data_indx != -1:
-            print('Time taken to process batch {0} was {1:.2f} by client {2}'.format(request.prev_data_indx, (time.time() - self.batches_processing[request.prev_data_indx]), request.client_id))
+            log_info('Time taken to process batch {0} was {1:.2f} by client {2}'.format(request.prev_data_indx, (time.time() - self.batches_processing[request.prev_data_indx]), request.client_id))
             del self.batches_processing[request.prev_data_indx]
 
-        # Print epoch information if we've hit the end of an epoch
+        # log_info epoch information if we've hit the end of an epoch
         if self.batch_num == self.n_batches:
             self.batch_num, self.epoch = 0, self.epoch + 1
-            self.print_perf(self.epoch)
+            self.log_info_perf(self.epoch)
 
         # Takes any previously failed batches first, otherwise takes next batch
         if self.batches_unprocessed != []:
@@ -148,7 +151,7 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         else:
             cur_batchnum, self.batch_num =  self.batch_num, self.batch_num + 1
 
-        # print('Telling client %d to process batch %d' % (request.client_id, cur_batchnum))
+        # log_info('Telling client %d to process batch %d' % (request.client_id, cur_batchnum))
         # Should probably also add in the client_id as a key for this
         self.batches_processing[cur_batchnum] = time.time()
 

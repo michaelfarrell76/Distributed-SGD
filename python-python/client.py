@@ -35,9 +35,8 @@ def gen_local_address(local_id):
 		return server_addresses[local_id - 1]
 
 def gen_server_addresses(local_id, local_address=None):
-	local_address_split = local_address.split('-')
 	if local_id is None:
-		internal_ip = []
+		names, ips = []
 		# Ugly formatting when directly using pipes, using files instead
 		with open('ips.txt', 'w') as f:
 		    subprocess.call(["gcloud", "compute", "instances", "list"], stdout=f)
@@ -45,11 +44,17 @@ def gen_server_addresses(local_id, local_address=None):
 		    lines = f.readlines()
 		    for line in lines[1:]:
 		        line_arr = filter((lambda x: x != '') , line.split(' '))
-		        addr_str = line_arr[3]
-		        addr_array = addr_str.split('-')
-		        if addr_array[0] == local_address_split[0] and addr_array[1] == local_address_split[1]:
-			        internal_ip.append(addr_str)
-		return internal_ip
+		       	names.append(line_array[0])
+		        ips.append(line_arr[3])
+		        if line_arr[3] == local_address:
+		        	local_name = line_array[0]
+		instance_ips = []
+		local_name_arr = local_name.split('-')
+		for i in range(len(ips)):
+			name_arr = names[i].split('-')
+			if names_arr[0] == local_name_arr[0] and names_arr[1] == local_name_arr[1]:
+				instance_ips.append(ips[i])
+		return instance_ips
 	if local_id is not None:
 		return ['[::]:50052', '[::]:50053', '[::]:50044']
 

@@ -64,7 +64,7 @@ def find_server(local_id=None):
 			stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
 			try:
 				response = stub.ping(dist_sgd_pb2.empty(), _TIMEOUT_SECONDS)
-				return address
+				return server_address
 			except Exception as e:
 				if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
 					continue

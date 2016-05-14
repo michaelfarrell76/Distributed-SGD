@@ -210,7 +210,7 @@ def start_paxos(server_stubs, self_paxos_server):
 			return True
 
 	# If proposal failed, backoff to try again later
-	self_paxos_server.backoff = self_paxos_server.backoff * 2
+	self_paxos_server.backoff = self_paxos_server.backoff * (1 + random.random())
 	return False
 
 def paxos_loop(self_paxos_server, local_id):

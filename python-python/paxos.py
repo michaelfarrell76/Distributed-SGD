@@ -157,7 +157,7 @@ def check_stubs_up(stubs):
 				# More severe error, should log and crash
 				traceback.print_exc()
 				sys.exit(1)
-	if responses < len(stubs):
+	if responses < len(stubs) / 2:
 		return False
 	else:
 		return True

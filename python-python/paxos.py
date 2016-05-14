@@ -67,15 +67,18 @@ def run_server(server, paxos_server):
 		except KeyboardInterrupt:
 			server.stop(0)
 
-def create_server(hostname):
+def create_server(hostname, local_id):
     # Allow argument that allows this parameter to be changsed
-	paxos_server = PaxosServer(hostname + ':' + str(PAXOS_PORT_STR)) 
+	paxos_server = PaxosServer(hostname) 
 	server = paxos_pb2.beta_create_PaxosServer_server(paxos_server)
-	server.add_insecure_port(hostname)
+	if local_id is None:
+		server.add_insecure_port(hostname + ':' + str(PAXOS_PORT_STR))
+	else:
+		server.add_insecure_port(hostname)
 	return paxos_server, server
 
 def send_proposals(server_stubs, self_paxos_server):
-	self_paxos_server.n = self_paxos_server.n + 1
+	self_paxos_server.n = self_paxos_server.n +  1
 	self_paxos_server.v = self_paxos_server.address
 
 	n_proposal = self_paxos_server.n
@@ -250,7 +253,7 @@ def run_paxos(local_id=None):
 	hostname = gen_local_address(local_id)
 	print(hostname + ' called to run Paxos for determining the server')
 
-	paxos_server, server = create_server(hostname)
+	paxos_server, server = create_server(hostname, local_id)
 	try:
 		Thread(target=run_server, args=(server,paxos_server,)).start()
 		start_paxos = time.time()

@@ -15,6 +15,7 @@ from autograd import grad
 import random
 
 from protobuf_utils.utils import * 
+import subprocess
 
 _TIMEOUT_SECONDS = 1
 PAXOS_PORT_STR = 50052
@@ -223,7 +224,8 @@ def paxos_loop(self_paxos_server, local_id):
 
 def gen_local_address(local_id):
 	if local_id is None:
-		return subprocess.call("ip addr show eth0 | grep 'inet' | cut -d ' ' -f8", shell=True)
+		addr = subprocess.check_output("ip addr show eth0 | grep 'inet' | cut -d ' ' -f8", shell=True)
+		return addr[:-1]
 	else:
 		server_addresses = gen_server_addresses(local_id)
 		return server_addresses[local_id - 1]

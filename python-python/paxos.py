@@ -31,12 +31,12 @@ class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     	self.n = 0
     	self.v = ''
     	self.n_v = 0
-    	self.backoff = int(5 * random.gauss(1, 0.25))
+    	self.backoff = (1 * random.gauss(1, 0.25))
     	if self.backoff < 0:
     		self.backoff = 1
     	self.consensus_reached = False
     	self.address = hostname
-    	self.new_server = None
+    	self.new_server = ''
 
     def prepare(self, request, context):
     	return paxos_pb2.ack(n=self.n, v=self.v, n_v=self.n_v)
@@ -173,6 +173,7 @@ def gen_server_stubs(self_paxos_server, local_id):
 	TOT_ATTEMPTS = 2
 	for i in range(TOT_ATTEMPTS):
 		server_addresses = gen_server_addresses(local_id, self_paxos_server.address)
+		print(server_addresses)
 		server_addresses.remove(self_paxos_server.address)
 		stubs = []
 		for server_address in server_addresses:
@@ -215,19 +216,19 @@ def start_paxos(server_stubs, self_paxos_server):
 def paxos_loop(self_paxos_server, local_id):
 	# This send_proposal_time should be based on the actual batch size
 	time_slept = 0
-	send_proposal_time = int(self_paxos_server.backoff)
+	send_proposal_time = self_paxos_server.backoff
 	while not self_paxos_server.consensus_reached:
-		time.sleep(1)
-		time_slept += 1
+		time.sleep(0.1)
+		time_slept += 0.1
 		# Send a proposal at allocated time
-		if time_slept == send_proposal_time and not self_paxos_server.consensus_reached:
+		if time_slept > send_proposal_time and not self_paxos_server.consensus_reached:
 			time.sleep(random.random())
 			server_stubs = gen_server_stubs(self_paxos_server, local_id)
 			if server_stubs is None:
 				self_paxos_server.new_server = ''
 				break
 			start_paxos(server_stubs, self_paxos_server)
-			send_proposal_time = int(random.gauss(1, 0.25) * self_paxos_server.backoff)
+			send_proposal_time = (random.gauss(1, 0.25) * self_paxos_server.backoff)
 			time_slept = 0
 		if send_proposal_time > 60:
 			self_paxos_server.consensus_reached = True

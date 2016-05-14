@@ -167,7 +167,7 @@ def gen_server_stubs(self_paxos_server, local_id):
 	# Not all machines are aware that the server have failed at the same time 
 	TOT_ATTEMPTS = 3
 	for i in range(TOT_ATTEMPTS):
-		server_addresses = gen_server_addresses(local_id)
+		server_addresses = gen_server_addresses(local_id, self_paxos_server.address)
 		server_addresses.remove(self_paxos_server.address)
 		stubs = []
 		for server_address in server_addresses:
@@ -233,7 +233,8 @@ def gen_local_address(local_id):
 		server_addresses = gen_server_addresses(local_id)
 		return server_addresses[local_id - 1]
 
-def gen_server_addresses(local_id):
+def gen_server_addresses(local_id, local_address=None):
+	local_address_split = local_address.split('-')
 	if local_id is None:
 		internal_ip = []
 		# Ugly formatting when directly using pipes, using files instead
@@ -243,7 +244,10 @@ def gen_server_addresses(local_id):
 		    lines = f.readlines()
 		    for line in lines[1:]:
 		        line_arr = filter((lambda x: x != '') , line.split(' '))
-		        internal_ip.append(line_arr[3])
+		        addr_str = line_arr[3]
+		        addr_array = addr_str.split('-')
+		        if addr_array[0] == local_address_split[0] and addr_array[1] == local_address_split[1]:
+			        internal_ip.append(addr_str)
 		return internal_ip
 	if local_id is not None:
 		return ['[::]:50052', '[::]:50053', '[::]:50044']

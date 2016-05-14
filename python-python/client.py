@@ -34,9 +34,10 @@ def gen_local_address(local_id):
 		server_addresses = gen_server_addresses(local_id)
 		return server_addresses[local_id - 1]
 
-def gen_server_addresses(local_id):
+def gen_server_addresses(local_id, local_address=None):
+	local_address_split = local_address.split('-')
 	if local_id is None:
-		internal_ip, instance_names = [], []
+		internal_ip = []
 		# Ugly formatting when directly using pipes, using files instead
 		with open('ips.txt', 'w') as f:
 		    subprocess.call(["gcloud", "compute", "instances", "list"], stdout=f)
@@ -44,8 +45,10 @@ def gen_server_addresses(local_id):
 		    lines = f.readlines()
 		    for line in lines[1:]:
 		        line_arr = filter((lambda x: x != '') , line.split(' '))
-		        instance_names.append(line_arr[0])
-		        internal_ip.append(line_arr[3])
+		        addr_str = line_arr[3]
+		        addr_array = addr_str.split('-')
+		        if addr_array[0] == local_address_split[0] and addr_array[1] == local_address_split[1]:
+			        internal_ip.append(addr_str)
 		return internal_ip
 	if local_id is not None:
 		return ['[::]:50052', '[::]:50053', '[::]:50044']
@@ -53,8 +56,8 @@ def gen_server_addresses(local_id):
 def find_server(local_id=None):
 	TOT_ATTEMPTS = 2
 	for i in range(TOT_ATTEMPTS):
-		server_addresses = gen_server_addresses(local_id)
 		local_address = gen_local_address(local_id)
+		server_addresses = gen_server_addresses(local_id, local_address)
 		server_addresses.remove(local_address)
 		for server_address in server_addresses:
 			if local_id is not None:
@@ -199,6 +202,7 @@ def run(local_id = None):
 			sys.exit(0)
 
 if __name__ == '__main__':
+	print('Starting client')
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--id')
 	args = parser.parse_args()

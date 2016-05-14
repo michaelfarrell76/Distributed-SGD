@@ -19,6 +19,9 @@ local demo_server = torch.class('demo_server')
 function worker()
     -- Used to check files 
     require "lfs"
+
+    -- Used to update path
+    require 'package'
     
     -- Alert successfully started up
     parallel.print('Im a worker, my ID is: ',  parallel.id, ' and my IP: ', parallel.ip)
@@ -31,7 +34,6 @@ function worker()
 
     -- Number of packages received
     local n_pkg = 0
-
     while true do
 
         -- Allow the parent to terminate the child
@@ -41,9 +43,11 @@ function worker()
         -- Receive data
         local pkg = parallel.parent:receive()
 
+
         -- Make sure to clean everything up since big files are being passed
         io.write('.') io.flush()
         collectgarbage()
+
 
         if n_pkg == 0 then 
             -- This is the first time receiving a package, it has the globals
@@ -52,6 +56,9 @@ function worker()
             parallel.print('Recieved initialization parameters')
             cmd, arg, ext = pkg.cmd, pkg.arg, pkg.ext
             opt = cmd:parse(arg)
+
+            -- Update path
+            package.path = opt.add_to_path .. package.path
 
             -- Add in additional necessary parameters
             opt.print = parallel.print
@@ -93,7 +100,6 @@ function worker()
             -- send some data back
             parallel.parent:send('Received parameters and loaded data successfully')
         else
-
             parallel.print('received params from batch with index: ', pkg.index)
 
             -- Load in the parameters sent from the parent

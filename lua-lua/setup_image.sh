@@ -13,4 +13,4 @@ scp -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey startup.sh $USERNAME
 echo "bash startup.sh" | ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNAL_IP
 
 # Disconnect from the server, reconnect  and finish running last things needed for initialization
-echo "bash startup.sh; " | ssh -o "StrictHostKeyChecking no" -i ~/.ssh/gcloud-sshkey $USERNAME@$EXTERNAL_IP
+echo "bash startup.sh; " | ssh -o "StrictHostKeyChecking no" -i ~/.ssh/dist-sgd-sshkey $USERNAME@$EXTERNAL_IP

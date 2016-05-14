@@ -98,7 +98,7 @@ where $EXTENSION is the relative path to the lua-lua folder from the your direct
 
 #### Remote - gcloud 
 
-Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud. 
+Instead of having the client programs running on your own computer, you can farm them out to any number of remote computers. Below is a description of how to setup remote clients using google cloud (gcloud offers 60 day free trials with $300 worth of credit). 
 
 ##### Adding ssh key to gcloud servers
 
@@ -257,7 +257,7 @@ Once connected, you need to again setup an ssh key from the computer that you ar
 Once this is done, you can run the server with remote gcloud clients using the command:
 ```bash
 $ cd Distributed-SGD/lua-lua
-$ EXTENSION=Distributed-SGD/lua-lua
+$ EXTENSION=Distributed-SGD/lua-lua/
 $ TORCH_PATH=/home/michaelfarrell/torch/install/bin/th
 $ th server.lua -n_proc 4 -remote -extension $EXTENSION  -torch_path $TORCH_PATH
 
@@ -289,6 +289,12 @@ If you are having your clients run remotely, you may also need to modify 'startu
 - Finish Acknowledgements
 - Add in proto implementation
 - Add in git pull at startup
+- add way to catch if failure down and reset
+- maybe add paxos if kevin is successful 
+- try adding protobufs 
+- get results
+- Add in addtional catches for errors like add to path
+
 
 ## Acknowledgments
 This example is also apart of another one of our repos: https://github.com/michaelfarrell76/End-To-End-Generative-Dialogue

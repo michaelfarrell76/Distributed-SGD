@@ -36,7 +36,7 @@ cmd:text("**General options**")
 cmd:text("")
 
 cmd:option('-server_class',    'demo_server',     	'Class name to use')
-cmd:option('-add_to_path' , 	'', 				'A string that will be appended on to the front of the path')
+cmd:option('-add_to_path' , 	'./End-To-End-Generative-Dialogue/src/?.lua;', 				'A string that will be appended on to the front of the path')
 
 cmd:text("")
 cmd:text("**_____________________________**")
@@ -60,6 +60,8 @@ cmd:option('-num_layers',       2,      'Number of layers in the LSTM encoder/de
 cmd:option('-hidden_size',      300,    'Size of LSTM hidden states')
 cmd:option('-word_vec_size',    300,    'Word embedding sizes')
 cmd:option('-layer_type',       'lstm', 'Recurrent layer type (rnn, gru, lstm, fast)')
+cmd:option('-model_type',       'red', 	'Model structure (red, hred)')
+
 
 cmd:text("")
 cmd:text("**Optimization options**")
@@ -68,7 +70,8 @@ cmd:text("")
 cmd:option('-num_epochs',       10,     'Number of training epochs')
 cmd:option('-start_epoch',      1,      'If loading from a checkpoint, the epoch from which to start')
 cmd:option('-param_init',       0.1,    'Parameters are initialized over uniform distribution with support (-param_init, param_init)')
-cmd:option('-learning_rate',    1,      'Starting learning rate')
+cmd:option('-learning_rate',    .01,      'Starting learning rate')
+cmd:option('-ada_grad',    		true,      'When true, update parameters using adagrad algorithm')
 cmd:option('-max_grad_norm',    5,      'If the norm of the gradient vector exceeds this, renormalize it to have the norm equal to max_grad_norm')
 cmd:option('-dropout',          0.3,    'Dropout probability. Dropout is applied between vertical LSTM stacks.')
 cmd:option('-lr_decay',         0.5,    'Decay learning rate by this much if (i) perplexity does not decrease on the validation set or (ii) epoch has gone past the start_decay_at_limit')
@@ -90,6 +93,7 @@ cmd:option('-gpuid2',   -1, 'If this is >= 0, then the model will use two GPUs w
 cmd:option('-save_every',   1,      'Save every this many epochs')
 cmd:option('-print_every',  5,      'Print stats after this many batches')
 cmd:option('-seed',         3435,   'Seed for random initialization')
+
 
 -- Parallel options
 cmd:option('-n_proc',           4,      	'The number of processes to farm out')

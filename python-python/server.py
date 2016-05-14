@@ -37,7 +37,7 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
 
         # Training parameters
         self.param_scale = 0.1
-        self.learning_rate = 1e-3
+        self.learning_rate = 1e-6
         self.momentum = 0.9
         self.batch_size = 256
         self.num_epochs = 50

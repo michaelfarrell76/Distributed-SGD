@@ -293,6 +293,7 @@ If you are having your clients run remotely, you may also need to modify 'startu
 - maybe add paxos if kevin is successful 
 - try adding protobufs 
 - get results
+- Add in addtional catches for errors like add to path
 
 
 ## Acknowledgments

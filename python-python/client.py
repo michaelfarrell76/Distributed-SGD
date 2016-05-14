@@ -56,7 +56,7 @@ def find_server(local_id=None):
 		server_addresses = gen_server_addresses(local_id)
 		local_address = gen_local_address(local_id)
 		server_addresses.remove(local_address)
-		for address in server_addresses:
+		for server_address in server_addresses:
 			if local_id is not None:
 				channel = implementations.insecure_channel('localhost', SERVER_PORT)
 			else:

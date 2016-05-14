@@ -69,7 +69,7 @@ def run_server(server, paxos_server):
 
 def create_server(hostname):
     # Allow argument that allows this parameter to be changsed
-	paxos_server = PaxosServer(hostname)
+	paxos_server = PaxosServer(hostname + ':' + str(PAXOS_PORT_STR)) 
 	server = paxos_pb2.beta_create_PaxosServer_server(paxos_server)
 	server.add_insecure_port(hostname)
 	return paxos_server, server

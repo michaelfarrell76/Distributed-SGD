@@ -59,7 +59,7 @@ def gen_server_addresses(local_id, local_address=None):
 		return ['[::]:50052', '[::]:50053', '[::]:50044']
 
 def find_server(local_id=None):
-	TOT_ATTEMPTS = 2
+	TOT_ATTEMPTS = 1
 	for i in range(TOT_ATTEMPTS):
 		local_address = gen_local_address(local_id)
 		server_addresses = gen_server_addresses(local_id, local_address)

@@ -17,7 +17,7 @@ import random
 from protobuf_utils.utils import * 
 import subprocess
 
-_TIMEOUT_SECONDS = 1
+_TIMEOUT_SECONDS = 2
 PAXOS_PORT_STR = 50052
 
 def log_info(value):

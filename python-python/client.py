@@ -28,7 +28,7 @@ SERVER_PORT = 50051
 
 
 def log_info(value):
-    print(str(time.time()) + ' ' + value)
+    print(str(time.time()) + ' ' + str(value))
 
 def gen_local_address(local_id):
 	if local_id is None:

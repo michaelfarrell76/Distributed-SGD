@@ -21,7 +21,7 @@ _TIMEOUT_SECONDS = 2
 PAXOS_PORT_STR = 50052
 
 def log_info(value):
-    print(str(time.time()) + ' ' + value)
+    print(str(time.time()) + ' ' + str(value))
 
 # Actual impelementation of the PaxosServer that is used to communicate between the clients. 
 # These are instantiated simply to determine the future main server from many different clients.
@@ -196,7 +196,7 @@ def gen_server_stubs(self_paxos_server, local_id):
 def broadcast_consensus(server_stubs, self_paxos_server, value):
 	for stub in server_stubs:
 		# Makes the connection to the server
-		response = stub.accepted(paxos_pb2.consensus(n=self_paxos_server.n, v=value), _TIMEOUT_SECONDS)
+		response = stub.accepted(paxos_pb2.consensus(n=self_paxos_server.n, v=value), 2 * _TIMEOUT_SECONDS)
 
 def start_paxos(server_stubs, self_paxos_server):
 	proposal_failed, n_proposal, value = send_proposals(server_stubs, self_paxos_server)

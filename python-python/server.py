@@ -22,7 +22,7 @@ images_fname = 'data/images(64).npy'
 labels_fname = 'data/output_labels(64).npy'
 
 def log_info(value):
-    print(str(time.time()) + ' ' + value)
+    print(str(time.time()) + ' ' + str(value))
 
 # import bpdb; bpdb.set_trace()
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):

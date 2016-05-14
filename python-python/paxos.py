@@ -17,7 +17,7 @@ import random
 from protobuf_utils.utils import * 
 import subprocess
 
-_TIMEOUT_SECONDS = 1
+_TIMEOUT_SECONDS = 10
 PAXOS_PORT_STR = 50052
 
 # Actual impelementation of the PaxosServer that is used to communicate between the clients. 
@@ -28,7 +28,7 @@ class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     	self.n = 0
     	self.v = ''
     	self.n_v = 0
-    	self.backoff = 1
+    	self.backoff = int(10 * random.random())
     	self.consensus_reached = False
     	self.address = hostname
     	self.new_server = None
@@ -165,7 +165,7 @@ def check_stubs_up(stubs):
 def gen_server_stubs(self_paxos_server, local_id):
 	# Make sure that all machines are aware that the Paxos algorithm is finishing
 	# Not all machines are aware that the server have failed at the same time 
-	TOT_ATTEMPTS = 3
+	TOT_ATTEMPTS = 2
 	for i in range(TOT_ATTEMPTS):
 		server_addresses = gen_server_addresses(local_id, self_paxos_server.address)
 		server_addresses.remove(self_paxos_server.address)
@@ -222,7 +222,7 @@ def paxos_loop(self_paxos_server, local_id):
 				self_paxos_server.new_server = ''
 				break
 			start_paxos(server_stubs, self_paxos_server)
-			send_proposal_time = int(5 * random.random() * self_paxos_server.backoff)
+			send_proposal_time = int(random.random() * self_paxos_server.backoff)
 			time_slept = 0
 
 def gen_local_address(local_id):

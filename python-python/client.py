@@ -22,8 +22,8 @@ import subprocess
 images_fname = 'data/images(64).npy'
 labels_fname = 'data/output_labels(64).npy'
 
-_TIMEOUT_SECONDS = 5
-TENSOR_TIMEOUT_SECONDS = 30
+_TIMEOUT_SECONDS = 20
+TENSOR_TIMEOUT_SECONDS = 60
 SERVER_PORT = 50051
 
 def gen_local_address(local_id):

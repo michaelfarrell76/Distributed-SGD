@@ -45,6 +45,7 @@ class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     	if request.n > self.n:
     		self.n_v = request.n
     		self.v = request.v
+    		self.n = request.n
         	return paxos_pb2.acquiescence(accept_bool=True)
         else:
         	return paxos_pb2.acquiescence(accept_bool=False)

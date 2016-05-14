@@ -28,7 +28,7 @@ def log_info(value):
 class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     def __init__(self, hostname):
     	self.consensus_value = None
-    	self.n = 0
+    	self.n = random.random()
     	self.v = ''
     	self.n_v = 0
     	self.backoff = (1 * random.gauss(1, 0.25))
@@ -84,7 +84,7 @@ def create_server(hostname, local_id):
 	return paxos_server, server
 
 def send_proposals(server_stubs, self_paxos_server):
-	self_paxos_server.n = self_paxos_server.n +  1
+	self_paxos_server.n = self_paxos_server.n * (1 + random.random())
 	self_paxos_server.v = self_paxos_server.address
 
 	n_proposal = self_paxos_server.n

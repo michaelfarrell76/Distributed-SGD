@@ -36,17 +36,17 @@ service PaxosServer {
 }
 
 message ack {
-	int32 n = 1;
+	float n = 1;
 	string v = 2;
 	int32 n_v = 3;
 }
 
 message proposal {
-	int32 n = 1;  
+	float n = 1;  
 }
 
 message request_acceptance{
-	int32 n = 1;
+	float n = 1;
 	string v = 2;
 }
 
@@ -55,7 +55,7 @@ message acquiescence {
 }
 
 message consensus { 
-	int32 n = 1;
+	float n = 1;
 	string v = 2;
 }
 

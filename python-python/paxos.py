@@ -251,7 +251,7 @@ def gen_server_addresses(local_id, local_address=None):
 		local_name_arr = local_name.split('-')
 		for i in range(len(ips)):
 			name_arr = names[i].split('-')
-			if names_arr[0] == local_name_arr[0] and names_arr[1] == local_name_arr[1]:
+			if name_arr[0] == local_name_arr[0] and name_arr[1] == local_name_arr[1]:
 				instance_ips.append(ips[i])
 		return instance_ips
 	if local_id is not None:

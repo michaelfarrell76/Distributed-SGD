@@ -31,7 +31,7 @@ class PaxosServer(paxos_pb2.BetaPaxosServerServicer):
     	self.n = 0
     	self.v = ''
     	self.n_v = 0
-    	self.backoff = int(10 * random.gauss(1, 0.25))
+    	self.backoff = int(5 * random.gauss(1, 0.25))
     	if self.backoff < 0:
     		self.backoff = 1
     	self.consensus_reached = False
@@ -229,6 +229,10 @@ def paxos_loop(self_paxos_server, local_id):
 			start_paxos(server_stubs, self_paxos_server)
 			send_proposal_time = int(random.gauss(1, 0.25) * self_paxos_server.backoff)
 			time_slept = 0
+		if send_proposal_time > 60:
+			self_paxos_server.consensus_reached = True
+			self_paxos_server.consensus_value = ''
+			break
 
 def gen_local_address(local_id):
 	if local_id is None:

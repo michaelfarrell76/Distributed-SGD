@@ -19,6 +19,10 @@ service ParamFeeder {
 
   // Gets gardient updates from client servers
   rpc GetUpdates (stream SubTensor) returns (StatusCode) {}
+
+  // This call simply makes sure that all machines have begun to run Paxos. 
+  rpc ping (empty) returns (empty) {}
+
 }
 
 message SubTensor { 
@@ -58,4 +62,4 @@ message NextBatch {
 	int32 data_indx = 2;
 }
 
-message Empty {}
+message empty {}

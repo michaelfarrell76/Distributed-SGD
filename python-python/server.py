@@ -23,7 +23,7 @@ labels_fname = 'data/output_labels(64).npy'
 
 # import bpdb; bpdb.set_trace()
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
-    def __init__(self):
+    def __init__(self, W = None, prevBatch=None):
         self.child_ids = Set([])
         # Load and process Caltech data
         self.train_images, self.train_labels, self.test_images, self.test_labels = load_caltech100(images_fname, labels_fname)
@@ -47,8 +47,13 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         self.loss_grad = grad(self.loss_fun)
 
         # Initialize weights
-        rs = npr.RandomState()
-        self.W = rs.randn(self.N_weights) * self.param_scale
+        if W is None:
+            rs = npr.RandomState()
+            self.W = rs.randn(self.N_weights) * self.param_scale
+        else:
+            # Passed in weights
+            self.W = W
+
         self.param_len = self.W.shape[0]
         print("# of parameters:")
         print(self.param_len)
@@ -59,9 +64,15 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         self.cur_dir = np.zeros(self.N_weights).astype(np.float32)
 
         self.epoch = 0
-        self.batch_num = 0
+        if prevBatch is None:
+            self.batch_num = 0
+        else:
+            self.batch_num = prevBatch
+
         self.n_batches = len(self.batch_idxs)
         self.n_childs = 0
+        self.max_client_id = 0
+        self.prev_test_perf = 1
 
         # The batches that are currently being processed
         self.batches_processing = {}
@@ -76,10 +87,16 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
     def print_perf(self, epoch):
         test_perf  = self.frac_err(self.W, self.test_images, self.test_labels)
         train_perf = self.frac_err(self.W, self.train_images, self.train_labels)
-        print("Epoch {0}, TrainErr {1:5}, TestErr {2:5}".format(self.epoch, train_perf, test_perf))
+        if test_perf > self.prev_test_perf:
+            self.learning_rate = 0.5 * self.learning_rate
+        self.prev_test_perf = test_perf
+        print("Epoch {0}, TrainErr {1:5}, TestErr {2:5}, LR {3:2}".format(self.epoch, train_perf, test_perf, self.learning_rate))
 
     # TODO: Any batches that are taking too long are removed from batches_processing and added to batches_unprocessed
     # def clean_unprocessed(self):
+
+    def ping(self, request, context):
+        return dist_sgd_pb2.empty() 
 
     def GetUpdates(self, request_iterator, context):
         # CHECK TO SEE IF THE REQUEST IS STALE AND SHOULD BE THROWN OUT, INDICATED BY CLIENT_ID
@@ -92,23 +109,28 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         # Throw error and return status=0 then
 
         # Gradient descent with momentum
-        self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
-        self.W -= 0.5 * self.learning_rate * self.cur_dir
+        # self.cur_dir = self.momentum * self.cur_dir + (1.0 - self.momentum) * grad_W
+        # self.W -= 0.5 * self.learning_rate * self.cur_dir
         
         # Basic gradient descent
-        # self.W -= 0.5 * self.learning_rate * grad_W
-        # print('Done updating from batch %d' % (subtensor.data_indx))
+        self.W -= 0.5 * self.learning_rate * grad_W
 
         return dist_sgd_pb2.StatusCode(status=1)
 
     def SendNextBatch(self, request, context):
         # Does not start until a sufficient number of child processes exists
+        if request.client_id == 0:
+            self.max_client_id += 1
+            request.client_id = self.max_client_id
+        else:
+            self.max_client_id = max(request.client_id, self.max_client_id)
+
         self.child_ids.add(request.client_id)
         if len(self.child_ids) != self.n_childs:
             self.n_childs = len(self.child_ids)
             print('Number of child processes: ' + str(len(self.child_ids)))
         if len(self.child_ids) < _REQUIRED_CHILDREN:
-            return dist_sgd_pb2.NextBatch(data_indx = -1)
+            return dist_sgd_pb2.NextBatch(client_id=request.client_id, data_indx = -1)
 
         # Logs information about previous batch timing
         if request.prev_data_indx != -1:
@@ -130,7 +152,7 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         # Should probably also add in the client_id as a key for this
         self.batches_processing[cur_batchnum] = time.time()
 
-        return dist_sgd_pb2.NextBatch(data_indx = cur_batchnum)
+        return dist_sgd_pb2.NextBatch(client_id=request.client_id, data_indx = cur_batchnum)
 
     def SendParams(self, request, context):
         CHUNK_SIZE = 524228
@@ -146,12 +168,14 @@ class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
         except Exception, e:
             traceback.print_exc()
 
-def serve():
+def serve(hostname, W = None, prev_batch = None, local_id = None):
+    hostname = '[::]:50051'
+
     # Allow argument that allows this parameter to be changed
     BATCH_TRAIN_TIMEOUT = 60
-    param_feeder = ParamFeeder()
+    param_feeder = ParamFeeder(W, prev_batch)
     server = dist_sgd_pb2.beta_create_ParamFeeder_server(param_feeder)
-    server.add_insecure_port('[::]:50051')
+    server.add_insecure_port(hostname)
     server.start()
     try:
         while True:
@@ -160,7 +184,7 @@ def serve():
 
     except KeyboardInterrupt:
         server.stop(0)
+        raise KeyboardInterrupt
 
 if __name__ == '__main__':
-
-    serve()
+    serve('[::]:50051')

@@ -2,9 +2,11 @@ from __future__ import print_function
 from __future__ import absolute_import
 from grpc.beta import implementations
 import time
+import sys
 
 import dist_sgd_pb2
 import argparse
+import traceback
 
 import autograd.numpy as np
 import autograd.numpy.random as npr
@@ -13,12 +15,74 @@ from autograd import grad
 from nnet.neural_net import *
 from protobuf_utils.utils import * 
 
+from server import serve
+from paxos import run_paxos
+import subprocess
+
 images_fname = 'data/images(64).npy'
 labels_fname = 'data/output_labels(64).npy'
 
-_TIMEOUT_SECONDS = 6000
+_TIMEOUT_SECONDS = 5
+TENSOR_TIMEOUT_SECONDS = 30
+SERVER_PORT = 50051
 
-def run(client_id):
+def gen_local_address(local_id):
+	if local_id is None:
+		return subprocess.call("ip addr show eth0 | grep 'inet' | cut -d ' ' -f8", shell=True)
+	else:
+		server_addresses = gen_server_addresses(local_id)
+		return server_addresses[local_id - 1]
+
+def gen_server_addresses(local_id):
+	if local_id is None:
+		internal_ip, instance_names = [], []
+		# Ugly formatting when directly using pipes, using files instead
+		with open('ips.txt', 'w') as f:
+		    subprocess.call(["gcloud", "compute", "instances", "list"], stdout=f)
+		with open('ips.txt', 'r') as f:
+		    lines = f.readlines()
+		    for line in lines[1:]:
+		        line_arr = filter((lambda x: x != '') , line.split(' '))
+		        instance_names.append(line_arr[0])
+		        internal_ip.append(line_arr[3])
+		return internal_ip
+	if local_id is not None:
+		return ['[::]:50052', '[::]:50053', '[::]:50044']
+
+def find_server(local_id=None):
+	TOT_ATTEMPTS = 2
+	for i in range(TOT_ATTEMPTS):
+		server_addresses = gen_server_addresses(local_id)
+		local_address = gen_local_address(local_id)
+		server_addresses.remove(local_address)
+		for address in server_addresses:
+			if local_id is not None:
+				channel = implementations.insecure_channel('localhost', SERVER_PORT)
+			else:
+				channel = implementations.insecure_channel(server_address, SERVER_PORT)
+			stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
+			try:
+				response = stub.ping(dist_sgd_pb2.empty(), _TIMEOUT_SECONDS)
+				return address
+			except Exception as e:
+				if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
+					continue
+				else:
+					# More severe error, should log and crash
+					traceback.print_exc()
+					sys.exit(1)
+		time.sleep(1 * TOT_ATTEMPTS)
+	return ''
+
+def connect_server_stub(server_addr, local_id):
+	if local_id is not None:
+		channel = implementations.insecure_channel('localhost', SERVER_PORT)
+	else:
+		channel = implementations.insecure_channel(server_addr, SERVER_PORT)
+	stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
+	return stub
+
+def run(local_id = None):
 	# Load and process Caltech data
 	train_images, train_labels, test_images, test_labels = load_caltech100(images_fname, labels_fname)
 	image_input_d = train_images.shape[1]
@@ -43,18 +107,36 @@ def run(client_id):
 	batch_idxs = make_batches(train_images.shape[0], batch_size)
 	cur_dir = np.zeros(N_weights)
 
-	       
-	channel = implementations.insecure_channel('localhost', 50051)
-	stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
-
 	prev_data_indx = -1
+
+	consec_expiration = 0
+
+	server_addr = ''
+	while server_addr == '':
+		server_addr = run_paxos(local_id)
+		if server_addr == '':
+			server_addr = find_server(local_id)
+	print('Server address is ' + server_addr)
+
+	if server_addr == gen_local_address(local_id):
+		print('Transforming into the server')
+		try:
+			serve(server_addr, None, prev_data_indx, local_id)
+		except KeyboardInterrupt as e:
+			print('interrupted')
+			sys.exit(0)
+		return
+
+	stub = connect_server_stub(server_addr, local_id)
+	client_id = 0
 
 	print('Data loaded and connected to server:')
 	
+	# prev_data_indx of -2 means failure, should probably change this to a different value / more specific field
 	try:
-		# prev_data_indx of -2 means failure, should probably change this to a different value / more specific field
 		response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
 		while response.data_indx != -2:
+			client_id = response.client_id
 			# Keep on trying to get your first batch
 			while response.data_indx == -1:
 				time.sleep(5)
@@ -65,7 +147,7 @@ def run(client_id):
 			# Generates the W matrix 
 			get_parameters_time = time.time()
 			W_bytes = ''
-			W_subtensors_iter = stub.SendParams(dist_sgd_pb2.ClientInfo(client_id=client_id), _TIMEOUT_SECONDS)
+			W_subtensors_iter = stub.SendParams(dist_sgd_pb2.ClientInfo(client_id=client_id), TENSOR_TIMEOUT_SECONDS)
 			for W_subtensor_pb in W_subtensors_iter:
 				# TODO: Error checking of some sort in here
 				# SOME ERROR IS THROWN HERE
@@ -93,14 +175,35 @@ def run(client_id):
 			prev_data_indx = response.data_indx
 			response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
 
-	except KeyboardInterrupt:
-		pass
-  	
+			consec_expiration = 0
+	except KeyboardInterrupt as e:
+		sys.exit(1)
+	except Exception as e:
+		# TODO, This should be logged rather than simply ed
+		# Failure of server should be caught and determined
+		if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
+			consec_expiration += 1
+			if consec_expiration == 2:
+				print('Failure to connect to server_stub. Starting Paxos')
+				while server_addr == '':
+					server_addr = run_paxos(local_id)
+					if server_addr == '':
+						server_addr = find_server(local_id)
+				if server_addr == gen_local_address(local_id):
+					serve(server_addr, W, prev_data_indx, local_id)
+					return
+				stub = connect_server_stub(server_addr)
+		else:
+			print(traceback.print_exc())
+			sys.exit(0)
+
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--id')
 	args = parser.parse_args()
-	arg_id = int(args.id)
-	assert(arg_id > 0)
-	# TODO: Client id should not need to be passed later
-	run(arg_id)
+	local_id = args.id
+	if local_id is not None:
+		local_id = int(local_id)
+		assert(local_id > 0)
+	while True:
+		run(local_id)

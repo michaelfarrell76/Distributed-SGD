@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package dist_sgd;
+
+option java_multiple_files = true;
+option java_package = "io.dist_sgd";
+option java_outer_classname = "DistSGD";
+
+// After getting a majority of proposals without getting rejected, the 
+// machine chooses an IP from the most recent acknowledgements or one 
+// that it generates itself and calls accept on all servers. 
+
+// The servers return whether or not they accept. If majority of servers accept, 
+// then it calls consensus on all servers and sends them the decided upon IP address 
+// that is server
+
+// TECHNICALLY, each machine should call consensus 
+
+// Main server for running the Paxos Algorithm. Everyone hosts this server on 
+// their localhost. Used for sending and receiving messages for coordinating Paxos.
+service PaxosServer {
+
+	// The machine sends each server a proposal. The server then
+	// sends an acknowledgement accepting or rejecting the proposal.
+	rpc prepare(proposal) returns (ack) {}
+
+	// Requests that people accept the proposal
+	rpc accept(request_acceptance) returns (acquiescence) {}
+
+	// Notified that consensus has been achieved about a server
+	// Technically each server should broadcast that it accepted the consensus
+	rpc accepted (consensus) returns (empty) {}
+
+	// This call simply makes sure that all machines have begun to run Paxos. 
+	rpc ping (empty) returns (empty) {}
+}
+
+message ack {
+	int32 n = 1;
+	string v = 2;
+	int32 n_v = 3;
+}
+
+message proposal {
+	int32 n = 1;  
+}
+
+message request_acceptance{
+	int32 n = 1;
+	string v = 2;
+}
+
+message acquiescence {
+	bool accept_bool = 1;
+}
+
+message consensus { 
+	int32 n = 1;
+	string v = 2;
+}
+
+message empty {
+}

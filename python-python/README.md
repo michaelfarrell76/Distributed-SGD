@@ -3,20 +3,21 @@ An implementation of distributed stochastic gradient descent in python. Clients 
 
 ## Requirements
 
-This code is written entirely in Python, and an installation of Numpy, Scipy, and Autograd is assumed. These packckages be easily installed through PIP using the following commands. 
+This code is written entirely in Python, and an installation of gRPC, Numpy, Scipy, and Autograd are necessary. These packages can be easily installed through PIP using the following commands. 
 
 ```bash
 $ pip install numpy
 $ pip install scipy
 $ pip install autograd
+$ pip install grpcio
 ```
 
-For launching the code remotely, we will be working with Google Cloud Compute. In order to interact with GCloud instances, please install the GCloud sdk. 
+For launching the code remotely, we will be working with Google Cloud Compute. In order to interact with GCloud instances, please install the GCloud sdk. This is located here: https://cloud.google.com/sdk/.  
 
 ## Directory Table of Contents
 ```
 .
-├── 101_ObjectCategories			# Folder holding the raw data from the 101_ObjectCategories
+├── 101_ObjectCategories		    # Folder holding the raw data from the 101_ObjectCategories
 |-- data                            # Folder holding the processed data
 ├── client.py                       # Python script used to initiate a client
 |── server.py 						# Python script to manually initiate a server
@@ -24,6 +25,8 @@ For launching the code remotely, we will be working with Google Cloud Compute. I
 ├── README.md                       # Python usage 
 ├── images(16).npy                  # Extremely small dataset included for reference
 ├── output_labels(16).npy           # Classifications of each image for the extremely small dataset
+├── nnet           					# Folder that includes a module for a convolution neural net
+├── protobuf_utils         			# Folder that includes utilities for manipulating tensor protobuffers
 ├── run_codegen.sh                  # Shell command used to generates the protobuffers 
 └── start.sh                        # Script that launches client.py on when running within gCloud
 ```

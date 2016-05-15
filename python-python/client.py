@@ -1,3 +1,9 @@
+# ------------------------------------------------------------
+# Implements a client that runs backpropogation on batches 
+# provided by the server. If no server exists, then Paxos 
+# is called to generate a server. 
+# ------------------------------------------------------------
+
 from __future__ import print_function
 from __future__ import absolute_import
 from grpc.beta import implementations
@@ -14,60 +20,36 @@ from autograd import grad
 
 from nnet.neural_net import *
 from protobuf_utils.utils import * 
+from server_utils.utils import * 
 
 from server import serve
 from paxos import run_paxos
 import subprocess
 
-images_fname = 'data/images(64).npy'
-labels_fname = 'data/output_labels(64).npy'
+
+# Loads in a really small version of the data that could fit in Github.
+# It will train extremely quickly as a result.
+images_fname = 'data/images(16).npy'
+labels_fname = 'data/output_labels(16).npy'
 
 _TIMEOUT_SECONDS = 20
 TENSOR_TIMEOUT_SECONDS = 60
 SERVER_PORT = 50051
 
-
-def log_info(value):
-    print(str(time.time()) + ' ' + str(value))
-
-def gen_local_address(local_id):
-	if local_id is None:
-		addr = subprocess.check_output("ip addr show eth0 | grep 'inet' | cut -d ' ' -f8", shell=True)
-		return addr[:-1]
-	else:
-		server_addresses = gen_server_addresses(local_id)
-		return server_addresses[local_id - 1]
-
-def gen_server_addresses(local_id, local_address=None):
-	if local_id is None:
-		names, ips = [], []
-		# Ugly formatting when directly using pipes, using files instead
-		with open('ips.txt', 'w') as f:
-		    subprocess.call(["gcloud", "compute", "instances", "list"], stdout=f)
-		with open('ips.txt', 'r') as f:
-		    lines = f.readlines()
-		    for line in lines[1:]:
-		        line_arr = filter((lambda x: x != '') , line.split(' '))
-		       	names.append(line_arr[0])
-		        ips.append(line_arr[3])
-		        if line_arr[3] == local_address:
-		        	local_name = line_arr[0]
-		instance_ips = []
-		local_name_arr = local_name.split('-')
-		for i in range(len(ips)):
-			name_arr = names[i].split('-')
-			if name_arr[0] == local_name_arr[0] and name_arr[1] == local_name_arr[1]:
-				instance_ips.append(ips[i])
-		return instance_ips
-	if local_id is not None:
-		return ['[::]:50052', '[::]:50053', '[::]:50044']
-
+# Loops through all possible addressses that are part of the instance 
+# group if this is launched on a remote server. Loops through all possible
+# addresses that are part of the local server as well. 
+# Determines whether or not a server exists by trying to connect with the 
+# a predefined port on the server 
 def find_server(local_id=None):
 	TOT_ATTEMPTS = 1
 	for i in range(TOT_ATTEMPTS):
+		# Generates local address information
 		local_address = gen_local_address(local_id)
 		server_addresses = gen_server_addresses(local_id, local_address)
 		server_addresses.remove(local_address)
+
+		# Loops through all the servers and tries to makes the server stub
 		for server_address in server_addresses:
 			if local_id is not None:
 				channel = implementations.insecure_channel('localhost', SERVER_PORT)
@@ -75,9 +57,14 @@ def find_server(local_id=None):
 				channel = implementations.insecure_channel(server_address, SERVER_PORT)
 			stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
 			try:
+				# Attempts to ping the server to see if the port is open
 				response = stub.ping(dist_sgd_pb2.empty(), _TIMEOUT_SECONDS)
+
+				# If the PING succeeds, then it is the server
 				return server_address
+
 			except Exception as e:
+				# Log any network or expiration errors we run into 
 				if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
 					log_info(str(e))
 					continue
@@ -88,6 +75,7 @@ def find_server(local_id=None):
 		time.sleep(1 * TOT_ATTEMPTS)
 	return ''
 
+# After determining the correct server, generate the stub for it
 def connect_server_stub(server_addr, local_id):
 	if local_id is not None:
 		channel = implementations.insecure_channel('localhost', SERVER_PORT)
@@ -96,6 +84,10 @@ def connect_server_stub(server_addr, local_id):
 	stub = dist_sgd_pb2.beta_create_ParamFeeder_stub(channel)
 	return stub
 
+
+# Main function of the client that loops forever. Receieves parameters and 
+# batch information from the server. Calculates gradients and sends them 
+# to the server
 def run(local_id = None):
 	# Load and process Caltech data
 	train_images, train_labels, test_images, test_labels = load_caltech100(images_fname, labels_fname)
@@ -120,10 +112,13 @@ def run(local_id = None):
 	batch_idxs = make_batches(train_images.shape[0], batch_size)
 	cur_dir = np.zeros(N_weights)
 
+	# Previous batch for the purpose of timing
 	prev_data_indx = -1
 
+	# Number of consective expirations, used to detect server failure
 	consec_expiration = 0
 
+	# Determine the server address by running Paxos or pinging all addresses
 	server_addr = ''
 	while server_addr == '':
 		server_addr = run_paxos(local_id)
@@ -131,6 +126,7 @@ def run(local_id = None):
 			server_addr = find_server(local_id)
 	log_info('Server address is ' + server_addr)
 
+	# If this client is selected to be server, then transform into a server
 	if server_addr == gen_local_address(local_id):
 		log_info('Transforming into the server')
 		try:
@@ -140,17 +136,18 @@ def run(local_id = None):
 			sys.exit(0)
 		return
 
+	# Generates the server stub and connects with it
 	stub = connect_server_stub(server_addr, local_id)
 	client_id = 0
 
 	log_info('Data loaded and connected to server:')
 	
-	# prev_data_indx of -2 means failure, should probably change this to a different value / more specific field
 	try:
+		# Gets the next batch that it should run
 		response = stub.SendNextBatch(dist_sgd_pb2.PrevBatch(client_id=client_id, prev_data_indx=prev_data_indx), _TIMEOUT_SECONDS)
 		while response.data_indx != -2:
 			client_id = response.client_id
-			# Keep on trying to get your first batch
+			# If this fails, it keeps on trying to get your first batch
 			while response.data_indx == -1:
 				time.sleep(5)
 				log_info('Waiting for server to send next batch')
@@ -162,8 +159,6 @@ def run(local_id = None):
 			W_bytes = ''
 			W_subtensors_iter = stub.SendParams(dist_sgd_pb2.ClientInfo(client_id=client_id), TENSOR_TIMEOUT_SECONDS)
 			for W_subtensor_pb in W_subtensors_iter:
-				# TODO: Error checking of some sort in here
-				# SOME ERROR IS THROWN HERE
 				W_bytes = W_bytes + W_subtensor_pb.tensor_content
 			W = convert_bytes_to_array(W_bytes)
 			log_info('Received parameters in {0:.2f}s'.format(time.time() - get_parameters_time))
@@ -192,19 +187,25 @@ def run(local_id = None):
 	except KeyboardInterrupt as e:
 		sys.exit(1)
 	except Exception as e:
-		# TODO, This should be logged rather than simply ed
-		# Failure of server should be caught and determined
 		if ('ExpirationError' in str(e) or 'NetworkError' in str(e)):
+			SERVER_CONSEC_FAILURE = 2
+			# Count the failures of the server
 			consec_expiration += 1
-			if consec_expiration == 2:
+
+			# If consecutive failures exceed a predefined value, then we look for
+			# the server by pinging available instances or by restarting Paxos
+			if consec_expiration == SERVER_CONSEC_FAILURE:
 				log_info('Failure to connect to server_stub. Starting Paxos')
+				# Launches paxos and then looks for the server
 				while server_addr == '':
 					server_addr = run_paxos(local_id)
 					if server_addr == '':
 						server_addr = find_server(local_id)
+				# Generates the server if it is chosen to be the server
 				if server_addr == gen_local_address(local_id):
 					serve(server_addr, W, prev_data_indx, local_id)
 					return
+				# Connects to the server
 				stub = connect_server_stub(server_addr)
 		else:
 			log_info(traceback.print_exc())
@@ -215,6 +216,8 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--id')
 	args = parser.parse_args()
+
+	# Local id is only used if running the machine locally
 	local_id = args.id
 	if local_id is not None:
 		local_id = int(local_id)

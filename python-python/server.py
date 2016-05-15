@@ -26,8 +26,8 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 _REQUIRED_CHILDREN = 1
 
 # Data files that we are training from. This is the small demo set. 
-images_fname = 'data/images(16).npy'
-labels_fname = 'data/output_labels(16).npy'
+images_fname = 'data/images(64).npy'
+labels_fname = 'data/output_labels(64).npy'
 
 class ParamFeeder(dist_sgd_pb2.BetaParamFeederServicer):
     def __init__(self, W = None, prevBatch=None):

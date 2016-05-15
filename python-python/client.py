@@ -29,8 +29,8 @@ import subprocess
 
 # Loads in a really small version of the data that could fit in Github.
 # It will train extremely quickly as a result.
-images_fname = 'data/images(16).npy'
-labels_fname = 'data/output_labels(16).npy'
+images_fname = 'data/images(64).npy'
+labels_fname = 'data/output_labels(64).npy'
 
 _TIMEOUT_SECONDS = 20
 TENSOR_TIMEOUT_SECONDS = 60

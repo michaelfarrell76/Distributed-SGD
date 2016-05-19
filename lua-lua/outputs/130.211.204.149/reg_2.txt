@@ -1,0 +1,55 @@
+<parallel#000>	Im the parent, my ID is: 	0	 and my IP: 	10.251.50.144	
+<parallel#000>	Loading data...	
+<parallel#000>	Source vocab size: 28721, Target vocab size: 42787	
+<parallel#000>	Source max sent len: 52, Target max sent len: 52	
+<parallel#000>	Done loading data!
+	
+<parallel#000>	Building model with specs:	
+<parallel#000>	Layer type: lstm	
+<parallel#000>	Model type: red	
+<parallel#000>	Embedding size: 300	
+<parallel#000>	Hidden layer size: 300	
+<parallel#000>	Number of layers: 2	
+<parallel#000>	Number of parameters: 37219687
+	
+<parallel#000>	Forking 	2	 processes	
+<parallel#000>	Forked	
+<parallel#000>	Finished telling workers to execute	
+<parallel#000>	Sending parameters to children	
+<parallel#002>	Im a worker, my ID is: 	2	 and my IP: 	10.251.50.144
+.<parallel#001>	Im a worker, my ID is: 	1	 and my IP: 	10.251.50.144
+.<parallel#002>	Recieved initialization parameters
+<parallel#001>	Recieved initialization parameters
+<parallel#000>	Replies from children	{
+  1 : "Received parameters and loaded data successfully"
+  2 : "Received parameters and loaded data successfully"
+}
+<parallel#000>	Beginning training...	
+<parallel#001>	Loading data...
+<parallel#001>	Source vocab size: 28721, Target vocab size: 42787
+<parallel#001>	Source max sent len: 52, Target max sent len: 52
+<parallel#001>	Done loading data!
+
+<parallel#001>	Building model with specs:
+<parallel#001>	Layer type: lstm
+<parallel#001>	Model type: red
+<parallel#001>	Embedding size: 300
+<parallel#001>	Hidden layer size: 300
+<parallel#001>	Number of layers: 2
+<parallel#001>	Number of parameters: 37219687
+
+.<parallel#002>	Loading data...
+<parallel#002>	Source vocab size: 28721, Target vocab size: 42787
+<parallel#002>	Source max sent len: 52, Target max sent len: 52
+<parallel#002>	Done loading data!
+
+<parallel#002>	Building model with specs:
+<parallel#002>	Layer type: lstm
+<parallel#002>	Model type: red
+<parallel#002>	Embedding size: 300
+<parallel#002>	Hidden layer size: 300
+<parallel#002>	Number of layers: 2
+<parallel#002>	Number of parameters: 37219687
+
+.<parallel#002>	received params from batch with index: 	21
+<parallel#002>	sending back derivative for batch with index: 	21

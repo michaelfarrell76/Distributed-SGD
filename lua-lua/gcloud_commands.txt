@@ -1,0 +1,11 @@
+th server.lua -n_proc 2 -remote -extension $EXTENSION -add_to_path '/home/michaelfarrell/Distributed-SGD/lua-lua/End-To-End-Generative-Dialogue/src/?.lua;'  -torch_path $TORCH_PATH | tee ada_2_rem.txt
+
+
+
+th server.lua -n_proc 4 -remote -extension $EXTENSION -add_to_path '/home/michaelfarrell/Distributed-SGD/lua-lua/End-To-End-Generative-Dialogue/src/?.lua;'  -torch_path $TORCH_PATH | tee ada_4_rem.txt
+
+th server.lua -n_proc 8 -remote -extension $EXTENSION -add_to_path '/home/michaelfarrell/Distributed-SGD/lua-lua/End-To-End-Generative-Dialogue/src/?.lua;'  -torch_path $TORCH_PATH -num_epochs 20 | tee ada_8_rem.txt
+
+th server.lua -n_proc 2 -ada_grad -learning_rate .1 | tee reg_2_loc.txt
+
+ cd End-To-End-Generative-Dialogue/; git pull origin master; cd ..

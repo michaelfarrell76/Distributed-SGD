@@ -2,6 +2,8 @@
 
 An implementation of distributed stochastic gradient descent for both local and remote clients.
 
+The [paper](https://github.com/michaelfarrell76/Distributed-SGD/blob/master/CS262%2520Final%2520Project/main.pdf) describing this project.
+
 ## Usage
 
 The usage varies depending on the native language. 
